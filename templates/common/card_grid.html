@@ -1,0 +1,20 @@
+{% comment %}
+Reusable card grid.
+Expects:
+- items: iterable
+- card_template: template path for a single card, receives `item`
+- empty_message: message for empty state
+{% endcomment %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for item in items %}
+    <div class="col">
+      {% include card_template with item=item %}
+    </div>
+  {% empty %}
+    <div class="col">
+      <div class="alert alert-secondary w-100 mb-0">
+        {{ empty_message|default:"No items yet." }}
+      </div>
+    </div>
+  {% endfor %}
+</div>

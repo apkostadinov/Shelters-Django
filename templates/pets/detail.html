@@ -1,0 +1,56 @@
+{% extends "common/base.html" %}
+
+{% block title %}{{ pet.name }}{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <img
+          src="{{ pet.image_url }}"
+          class="card-img-top"
+          alt="{{ pet.name }}"
+          style="height: 320px; object-fit: cover;"
+        />
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="d-flex align-items-start justify-content-between mb-3">
+        <div>
+          <h1 class="h3 mb-1">{{ pet.name }}</h1>
+          <div class="text-muted">{{ pet.get_species_display }} · {{ pet.age }} years</div>
+        </div>
+        <div class="text-end">
+          {% if pet.available_for_adoption %}
+            <span class="badge bg-success">Adoptable</span>
+          {% endif %}
+          {% if pet.available_for_volunteers %}
+            <span class="badge bg-primary">Needs Volunteers</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mb-3">{{ pet.description }}</div>
+
+      {% if pet.shelter %}
+        <div class="mb-2">
+          <strong>Shelter:</strong> {{ pet.shelter.name }}
+          <div class="text-muted small">{{ pet.shelter.city }} · {{ pet.shelter.address }}</div>
+        </div>
+      {% endif %}
+
+      <div>
+        <strong>Caretakers:</strong>
+        {% if pet.caretakers.exists %}
+          <ul class="mt-2">
+            {% for caretaker in pet.caretakers.all %}
+              <li>{{ caretaker.name }} ({{ caretaker.specialization }})</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-muted small">None assigned</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
