@@ -1,16 +1,18 @@
-<div class="card h-100 shadow-sm">
-  <img
-    src="{{ item.image_url }}"
-    class="card-img-top"
-    alt="{{ item.name }}"
-    style="height: 512px; object-fit: cover;"
-  />
-  <div class="card-body">
-    <h5 class="card-title mb-1">{{ item.name }}</h5>
-    <p class="text-muted small mb-2">{{ item.get_species_display }} · {{ item.age }} years</p>
-    <p class="card-text mb-2">{{ item.description }}</p>
-    {% if item.shelter %}
-      <div class="small text-muted">Shelter: {{ item.shelter.name }}</div>
-    {% endif %}
+<a class="text-decoration-none text-reset" href="{% url 'pet-detail' item.id %}">
+  <div class="card h-100 shadow-sm">
+    <img
+      src="{{ item.image_url }}"
+      class="card-img-top"
+      alt="{{ item.name }}"
+      style="height: 512px; object-fit: cover;"
+    />
+    <div class="card-body">
+      <h5 class="card-title mb-1">{{ item.name }}</h5>
+      <p class="text-muted small mb-2">{{ item.get_species_display }} · {{ item.age }} years</p>
+      <p class="card-text mb-2">{{ item.description }}</p>
+      {% if item.shelter %}
+        <div class="small text-muted">Shelter: {{ item.shelter.name }}</div>
+      {% endif %}
+    </div>
   </div>
-</div>
+</a>

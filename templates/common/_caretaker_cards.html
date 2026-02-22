@@ -1,0 +1,17 @@
+<div class="row row-cols-2 row-cols-md-3 g-2">
+  {% for caretaker in caretakers %}
+    <div class="col">
+      <a class="text-decoration-none text-reset" href="{% url 'caretaker-detail' caretaker.id %}">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body py-2 px-3">
+            <div class="small fw-semibold text-truncate">{{ caretaker.name }}</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% empty %}
+    <div class="col">
+      <div class="text-muted small">No caretakers assigned yet.</div>
+    </div>
+  {% endfor %}
+</div>

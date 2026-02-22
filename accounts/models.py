@@ -11,8 +11,9 @@ class Account(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
     image = models.ImageField(upload_to=account_image_upload_to, blank=True)
+    active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -33,8 +34,26 @@ class Account(models.Model):
 
 
 class Volunteer(Account):
-    experience_level = models.CharField(max_length=100)
+    EXPERIENCE_LEVEL_CHOICES = [
+        ("beginner", "Beginner (Tier 1)"),
+        ("intermediate", "Intermediate (Tier 2)"),
+        ("advanced", "Advanced (Tier 3)"),
+    ]
+
+    experience_level = models.CharField(
+        max_length=20,
+        choices=EXPERIENCE_LEVEL_CHOICES,
+    )
 
 
 class Caretaker(Account):
-    specialization = models.CharField(max_length=100)
+    SPECIALIZATION_CHOICES = [
+        ("behavior", "Behavior"),
+        ("medical", "Medical"),
+        ("nutrition", "Nutrition"),
+    ]
+
+    specialization = models.CharField(
+        max_length=20,
+        choices=SPECIALIZATION_CHOICES,
+    )

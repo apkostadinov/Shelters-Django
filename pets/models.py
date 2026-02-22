@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -7,23 +8,32 @@ def pet_image_upload_to(instance, filename):
 
 
 class Pet(models.Model):
-    SPECIES_CHOICES = [
-        ("dog", "Dog"),
-        ("cat", "Cat"),
-        ("other", "Other"),
-    ]
+    class AnimalSpecies(models.TextChoices):
+        DOG = "dog", "Dog",
+        CAT = "cat", "Cat",
+        OTHER = "other", "Other"
+
+
 
     name = models.CharField(max_length=100)
-    species = models.CharField(max_length=20, choices=SPECIES_CHOICES)
+    species = models.CharField(
+        max_length=20,
+        choices=AnimalSpecies
+    )
     age = models.PositiveIntegerField()
     description = models.TextField()
     available_for_volunteers = models.BooleanField(default=False)
-    available_for_adoption = models.BooleanField(
-        default=False,
-    )
+    available_for_adoption = models.BooleanField(default=False)
     image = models.ImageField(upload_to=pet_image_upload_to, blank=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
     shelter = models.ForeignKey("shelters.Shelter", on_delete=models.CASCADE)
-    caretakers = models.ManyToManyField("accounts.Caretaker", blank=True)
+    caretakers = models.ManyToManyField(
+        "accounts.Caretaker",
+        through="PetCaretaker",
+        blank=True,
+    )
 
     def save(self, *args, **kwargs):
         if self.image and self.pk is None:
@@ -57,3 +67,27 @@ class Booking(models.Model):
         null=True,
         blank=True
     )
+
+
+class PetCaretaker(models.Model):
+    pet = models.ForeignKey("pets.Pet", on_delete=models.CASCADE)
+    caretaker = models.ForeignKey("accounts.Caretaker", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["pet", "caretaker"], name="uniq_pet_caretaker"),
+        ]
+
+    def clean(self):
+        if self.pet_id is None or self.caretaker_id is None:
+            return
+
+        allowed = self.pet.shelter_id in self.caretaker.shelters.values_list("id", flat=True)
+        if not allowed:
+            raise ValidationError(
+                "Caretakers can only be assigned to pets in the same shelter."
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)

@@ -5,6 +5,7 @@
 {% block content %}
   <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Pets</h1>
+    <a class="btn btn-secondary" href="/pets/new/">Add pet</a>
   </div>
 
   {% include "common/card_grid.html" with items=pets card_template="pets/_card.html" empty_message="No pets available yet." %}

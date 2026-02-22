@@ -12,6 +12,13 @@ class Shelter(models.Model):
     address = models.TextField()
     image = models.ImageField(upload_to=shelter_image_upload_to, blank=True)
     capacity = models.PositiveIntegerField()
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    caretakers = models.ManyToManyField("accounts.Caretaker", blank=True, related_name="shelters")
+
+    def __str__(self):
+        return self.name
 
     def save(self, *args, **kwargs):
         if self.image and self.pk is None:

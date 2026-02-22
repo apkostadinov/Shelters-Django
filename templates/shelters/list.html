@@ -1,0 +1,79 @@
+{% extends "common/base.html" %}
+
+{% block title %}Shelters{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Shelters</h1>
+    <a class="btn btn-secondary" href="/shelters/new/">Add shelter</a>
+  </div>
+
+  <div class="d-flex flex-column gap-3">
+    {% for shelter in shelters %}
+      <a class="text-decoration-none text-reset" href="{% url 'shelter-detail' shelter.id %}">
+        <div class="card shadow-sm">
+          <div class="row g-0">
+            <div class="col-lg-2">
+              <img
+                src="{{ shelter.image_url }}"
+                class="img-fluid h-100 w-100 rounded-start"
+                alt="{{ shelter.name }}"
+                style="object-fit: cover; min-height: 220px;"
+              />
+            </div>
+            <div class="col-lg-8">
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-lg-6">
+                    <h5 class="card-title mb-2">{{ shelter.name }}</h5>
+                    <p class="text-muted small mb-3">{{ shelter.city }}</p>
+                    <p class="card-text mb-2">{{ shelter.address }}</p>
+                    <div class="small text-muted">Capacity: {{ shelter.capacity }}</div>
+                    <div class="small text-muted">Current pets: {{ shelter.total_pets }}</div>
+                    <div class="d-flex flex-wrap gap-2 mt-2 small text-muted">
+                      {% for entry in shelter.pet_counts %}
+                        {% if entry.count %}
+                          <span class="badge text-bg-light border">
+                            {{ entry.label }}{{ entry.count|pluralize:"s" }}: {{ entry.count }}
+                          </span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div class="small text-uppercase text-muted fw-semibold">Latest additions</div>
+                    </div>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-2 justify-content-end">
+                      {% for pet in shelter.latest_additions %}
+                        {% if forloop.counter == 1 %}
+                          <div class="col">
+                            {% include "common/square_card.html" with item=pet %}
+                          </div>
+                        {% elif forloop.counter == 2 %}
+                          <div class="col d-none d-md-block">
+                            {% include "common/square_card.html" with item=pet %}
+                          </div>
+                        {% elif forloop.counter == 3 %}
+                          <div class="col d-none d-xl-block">
+                            {% include "common/square_card.html" with item=pet %}
+                          </div>
+                        {% endif %}
+                      {% empty %}
+                        <div class="col">
+                          <div class="text-muted small">No pets added yet.</div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    {% empty %}
+      <div class="alert alert-secondary mb-0">No shelters available yet.</div>
+    {% endfor %}
+  </div>
+{% endblock %}

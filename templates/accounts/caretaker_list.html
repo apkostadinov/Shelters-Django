@@ -1,0 +1,15 @@
+{% extends "common/base.html" %}
+
+{% block title %}Caretakers{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Caretakers</h1>
+    <div class="d-flex gap-2">
+      <a class="btn btn-secondary" href="/accounts/caretakers/new/">Add caretaker</a>
+      <a class="btn btn-outline-secondary" href="/accounts/volunteers/new/">Add volunteer</a>
+    </div>
+  </div>
+
+  {% include "common/card_grid.html" with items=caretakers card_template="accounts/_caretaker_card.html" empty_message="No caretakers available yet." %}
+{% endblock %}

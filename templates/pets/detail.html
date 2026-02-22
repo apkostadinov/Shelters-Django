@@ -27,6 +27,9 @@
           {% if pet.available_for_volunteers %}
             <span class="badge bg-primary">Needs Volunteers</span>
           {% endif %}
+          <div class="mt-2">
+            <a class="btn btn-sm btn-secondary" href="{% url 'pet-edit' pet.id %}">Edit pet</a>
+          </div>
         </div>
       </div>
 
@@ -41,15 +44,9 @@
 
       <div>
         <strong>Caretakers:</strong>
-        {% if pet.caretakers.exists %}
-          <ul class="mt-2">
-            {% for caretaker in pet.caretakers.all %}
-              <li>{{ caretaker.name }} ({{ caretaker.specialization }})</li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <div class="text-muted small">None assigned</div>
-        {% endif %}
+        <div class="mt-2">
+          {% include "common/_caretaker_cards.html" with caretakers=pet.caretakers.all %}
+        </div>
       </div>
     </div>
   </div>

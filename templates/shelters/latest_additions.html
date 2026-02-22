@@ -1,0 +1,24 @@
+{% extends "common/base.html" %}
+
+{% block title %}Latest Additions · {{ shelter.name }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="h3 mb-1">Latest additions</h1>
+      <div class="text-muted">{{ shelter.name }} · {{ shelter.city }}</div>
+    </div>
+  </div>
+
+  <div class="row row-cols-2 row-cols-md-4 g-3">
+    {% for pet in pets %}
+      <div class="col">
+        {% include "common/square_card.html" with item=pet %}
+      </div>
+    {% empty %}
+      <div class="col">
+        <div class="alert alert-secondary mb-0">No pets added yet.</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
