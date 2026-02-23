@@ -83,6 +83,13 @@ python manage.py runserver
 
 App runs at `http://127.0.0.1:8000/`.
 
+## Project Setup Notes
+
+- Required tools: Python 3.10+ and PostgreSQL 13+.
+- Ensure PostgreSQL is running locally before migrations.
+- If you use a different host/port or credentials, update `PetShelterDjango/settings.py` accordingly.
+- For a clean start, delete any existing data and rerun migrations.
+
 ## Seed Demo Data (Optional)
 
 ```bash
