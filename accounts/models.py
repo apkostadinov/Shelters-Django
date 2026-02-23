@@ -32,6 +32,9 @@ class Account(models.Model):
             return self.image.url
         return f"{settings.MEDIA_URL}defaults/accounts.png"
 
+    def display_title(self):
+        raise NotImplementedError("Subclasses must implement display_title().")
+
 
 class Volunteer(Account):
     EXPERIENCE_LEVEL_CHOICES = [
@@ -45,6 +48,9 @@ class Volunteer(Account):
         choices=EXPERIENCE_LEVEL_CHOICES,
     )
 
+    def display_title(self):
+        return self.get_experience_level_display()
+
 
 class Caretaker(Account):
     SPECIALIZATION_CHOICES = [
@@ -57,3 +63,6 @@ class Caretaker(Account):
         max_length=20,
         choices=SPECIALIZATION_CHOICES,
     )
+
+    def display_title(self):
+        return self.get_specialization_display()

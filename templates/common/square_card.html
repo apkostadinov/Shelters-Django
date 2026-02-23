@@ -1,0 +1,16 @@
+<div class="card border-0 shadow-sm h-100">
+  <div class="ratio ratio-1x1 rounded overflow-hidden position-relative">
+    <img
+      src="{{ item.image_url }}"
+      alt="{{ item.name }}"
+      class="position-absolute top-0 start-0 w-100 h-100"
+      style="object-fit: cover;"
+    />
+    <div class="position-absolute bottom-0 start-0 w-100 px-2 py-1 bg-dark bg-opacity-50 text-white">
+      <div class="fw-semibold small text-truncate">{{ item.name }}</div>
+      {% if item.get_species_display %}
+        <div class="small text-truncate">{{ item.get_species_display }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>

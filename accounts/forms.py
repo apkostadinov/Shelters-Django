@@ -102,6 +102,49 @@ class VolunteerCreateForm(forms.ModelForm):
         }
 
 
+class VolunteerEditForm(forms.ModelForm):
+    class Meta:
+        model = Volunteer
+        fields = [
+            "name",
+            "email",
+            "phone_number",
+            "image",
+            "experience_level",
+            "active",
+        ]
+        labels = {
+            "name": "Full name",
+            "email": "Email address",
+            "phone_number": "Phone number",
+            "image": "Profile photo",
+            "experience_level": "Experience level",
+            "active": "Active",
+        }
+        help_texts = {
+            "name": "First and last name preferred.",
+            "email": "Used for internal contact.",
+            "phone_number": "Include country/area code if possible.",
+            "image": "Optional. JPG or PNG recommended.",
+            "experience_level": "Choose the level that best fits.",
+            "active": "Turn off to hide this volunteer from public lists.",
+        }
+        error_messages = {
+            "name": {"required": "Please enter a name."},
+            "email": {
+                "required": "Please enter an email address.",
+                "invalid": "Enter a valid email address.",
+            },
+            "phone_number": {"required": "Please enter a phone number."},
+            "experience_level": {"required": "Please select an experience level."},
+        }
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "Jordan Blake"}),
+            "email": forms.EmailInput(attrs={"placeholder": "volunteer@example.com"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "555-0456"}),
+        }
+
+
 class CaretakerEditForm(forms.ModelForm):
     shelters = forms.ModelMultipleChoiceField(
         queryset=Shelter.objects.filter(active=True).order_by("name"),
@@ -192,6 +235,9 @@ class PetAssignmentForm(forms.Form):
             .order_by("name")
         )
         self.fields["pets"].initial = self.caretaker.pet_set.values_list("id", flat=True)
+        self.fields["pets"].label_from_instance = (
+            lambda pet: f"{pet.name} · {pet.age} yrs · {pet.shelter.name}"
+        )
 
     def save(self):
         pets = self.cleaned_data["pets"]

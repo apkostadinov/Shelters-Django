@@ -1,0 +1,37 @@
+{% extends "common/base.html" %}
+
+{% block title %}Assign Pets{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-2">Assign pets to {{ caretaker.name }} </h1>
+
+          <div class="mb-3">
+            <div class="small text-uppercase text-muted fw-semibold mb-2">Shelters</div>
+            {% if shelters %}
+              <div class="d-flex flex-wrap gap-2">
+                {% for shelter in shelters %}
+                  <span class="badge text-bg-light border">{{ shelter.name }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-muted small">No shelters assigned. Add a shelter to assign pets.</div>
+            {% endif %}
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="/accounts/caretakers/{{ caretaker.id }}/" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

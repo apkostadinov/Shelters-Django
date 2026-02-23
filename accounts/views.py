@@ -2,8 +2,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from pets.models import Pet
 
-from .forms import CaretakerCreateForm, CaretakerEditForm, PetAssignmentForm, VolunteerCreateForm
-from .models import Caretaker
+from .forms import (
+    CaretakerCreateForm,
+    CaretakerEditForm,
+    PetAssignmentForm,
+    VolunteerCreateForm,
+    VolunteerEditForm,
+)
+from .models import Caretaker, Volunteer
 
 
 def caretaker_list(request):
@@ -50,6 +56,16 @@ def volunteer_create(request):
     return render(request, "accounts/create_volunteer.html", {"form": form})
 
 
+def volunteer_list(request):
+    volunteers = Volunteer.objects.filter(active=True).order_by("name")
+    return render(request, "accounts/volunteer_list.html", {"volunteers": volunteers})
+
+
+def volunteer_detail(request, pk):
+    volunteer = get_object_or_404(Volunteer.objects.filter(active=True), pk=pk)
+    return render(request, "accounts/volunteer_detail.html", {"volunteer": volunteer})
+
+
 def caretaker_assign_pets(request, pk):
     caretaker = get_object_or_404(Caretaker.objects.filter(active=True), pk=pk)
     if request.method == "POST":
@@ -94,4 +110,33 @@ def caretaker_delete(request, pk):
         request,
         "accounts/confirm_delete.html",
         {"caretaker": caretaker},
+    )
+
+
+def volunteer_edit(request, pk):
+    volunteer = get_object_or_404(Volunteer.objects.filter(active=True), pk=pk)
+    if request.method == "POST":
+        form = VolunteerEditForm(request.POST, request.FILES, instance=volunteer)
+        if form.is_valid():
+            volunteer = form.save()
+            return redirect("volunteer-detail", pk=volunteer.pk)
+    else:
+        form = VolunteerEditForm(instance=volunteer)
+
+    return render(
+        request,
+        "accounts/edit_volunteer.html",
+        {"form": form, "volunteer": volunteer},
+    )
+
+
+def volunteer_delete(request, pk):
+    volunteer = get_object_or_404(Volunteer, pk=pk)
+    if request.method == "POST":
+        volunteer.delete()
+        return redirect("volunteer-list")
+    return render(
+        request,
+        "accounts/confirm_delete.html",
+        {"volunteer": volunteer},
     )

@@ -1,4 +1,5 @@
 {% extends "common/base.html" %}
+{% load phone_filters %}
 
 {% block title %}{{ caretaker.name }}{% endblock %}
 
@@ -18,7 +19,7 @@
       <div class="d-flex align-items-start justify-content-between mb-3">
         <div>
           <h1 class="h3 mb-1">{{ caretaker.name }}</h1>
-          <div class="text-muted">{{ caretaker.specialization }}</div>
+          <div class="text-muted">{{ caretaker.display_title }}</div>
         </div>
         <div>
           <a class="btn btn-sm btn-secondary" href="{% url 'caretaker-edit' caretaker.id %}">Edit caretaker</a>
@@ -26,7 +27,7 @@
       </div>
       <div class="mb-3">
         <div class="small text-muted">Email: {{ caretaker.email }}</div>
-        <div class="small text-muted">Phone: {{ caretaker.phone_number }}</div>
+        <div class="small text-muted">Phone: {{ caretaker.phone_number|format_phone }}</div>
       </div>
       <div class="mt-3">
         <div class="small text-uppercase text-muted fw-semibold mb-2">Shelters</div>

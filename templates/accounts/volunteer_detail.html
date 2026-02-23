@@ -1,0 +1,33 @@
+{% extends "common/base.html" %}
+
+{% block title %}{{ volunteer.name }}{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <img
+          src="{{ volunteer.image_url }}"
+          class="card-img-top"
+          alt="{{ volunteer.name }}"
+          style="height: 320px; object-fit: cover;"
+        />
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="d-flex align-items-start justify-content-between mb-3">
+        <div>
+          <h1 class="h3 mb-1">{{ volunteer.name }}</h1>
+          <div class="text-muted">{{ volunteer.display_title }}</div>
+        </div>
+        <div>
+          <a class="btn btn-sm btn-secondary" href="{% url 'volunteer-edit' volunteer.id %}">Edit volunteer</a>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="small text-muted">Email: {{ volunteer.email }}</div>
+        <div class="small text-muted">Phone: {{ volunteer.phone_number }}</div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

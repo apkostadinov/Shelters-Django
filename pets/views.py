@@ -2,17 +2,35 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import Caretaker
+from shelters.models import Shelter
 from .forms import PetCreateForm, PetEditForm
 from .models import Pet
 
 
 def pet_list(request):
+    shelters = Shelter.objects.filter(active=True).order_by("name")
+    shelter_id = request.GET.get("shelter")
+    pets = Pet.objects.filter(active=True, shelter__active=True)
+    selected_shelter = None
+    if shelter_id:
+        pets = pets.filter(shelter_id=shelter_id)
+        selected_shelter = shelter_id
+
     pets = (
-        Pet.objects.filter(active=True, shelter__active=True)
+        pets
         .select_related("shelter")
         .prefetch_related(Prefetch("caretakers", queryset=Caretaker.objects.filter(active=True)))
+        .order_by("?")
     )
-    return render(request, "pets/list.html", {"pets": pets})
+    return render(
+        request,
+        "pets/list.html",
+        {
+            "pets": pets,
+            "shelters": shelters,
+            "selected_shelter": selected_shelter,
+        },
+    )
 
 
 def pet_detail(request, pk):

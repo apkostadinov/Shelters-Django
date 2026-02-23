@@ -48,6 +48,9 @@
             <li class="nav-item">
               <a class="nav-link" href="/accounts/caretakers">Caretakers</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/accounts/volunteers/">Volunteers</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -58,8 +61,21 @@
     </main>
 
     <footer class="mt-auto bg-light border-top">
-      <div class="container py-3 text-muted small">
-        &copy; {% now "Y" %} Alexander Kostadinov
+      <div class="container py-3">
+        <div class="d-flex flex-wrap gap-3 small mb-2">
+          <a class="text-decoration-none text-muted" href="/">Home</a>
+          <a class="text-decoration-none text-muted" href="/pets/">Pets</a>
+          <a class="text-decoration-none text-muted" href="/pets/new/">Add pet</a>
+          <a class="text-decoration-none text-muted" href="/shelters/">Shelters</a>
+          <a class="text-decoration-none text-muted" href="/shelters/new/">Add shelter</a>
+          <a class="text-decoration-none text-muted" href="/accounts/caretakers/">Caretakers</a>
+          <a class="text-decoration-none text-muted" href="/accounts/volunteers/">Volunteers</a>
+          <a class="text-decoration-none text-muted" href="/accounts/caretakers/new/">Add caretaker</a>
+          <a class="text-decoration-none text-muted" href="/accounts/volunteers/new/">Add volunteer</a>
+        </div>
+        <div class="text-muted small">
+          &copy; {% now "Y" %} Alexander Kostadinov
+        </div>
       </div>
     </footer>
 

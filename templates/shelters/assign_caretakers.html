@@ -1,0 +1,24 @@
+{% extends "common/base.html" %}
+
+{% block title %}Assign Caretakers{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-2">Assign caretakers</h1>
+          <div class="text-muted mb-3">Shelter: {{ shelter.name }}</div>
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-secondary">Save</button>
+              <a href="{% url 'shelter-detail' shelter.id %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

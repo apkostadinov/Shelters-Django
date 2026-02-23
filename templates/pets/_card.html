@@ -7,8 +7,22 @@
       style="height: 512px; object-fit: cover;"
     />
     <div class="card-body">
-      <h5 class="card-title mb-1">{{ item.name }}</h5>
-      <p class="text-muted small mb-2">{{ item.get_species_display }} · {{ item.age }} years</p>
+      <div class="d-flex align-items-start justify-content-between mb-2">
+        <div>
+          <h5 class="card-title mb-1">{{ item.name }}</h5>
+          <p class="text-muted small mb-0">
+            {{ item.get_species_display }} · {{ item.age }} year{{ item.age|pluralize }}
+          </p>
+        </div>
+        <div class="text-end">
+          {% if item.available_for_adoption %}
+            <span class="badge bg-success">Adoptable</span>
+          {% endif %}
+          {% if item.available_for_volunteers %}
+            <span class="badge bg-primary">Needs Volunteers</span>
+          {% endif %}
+        </div>
+      </div>
       <p class="card-text mb-2">{{ item.description }}</p>
       {% if item.shelter %}
         <div class="small text-muted">Shelter: {{ item.shelter.name }}</div>

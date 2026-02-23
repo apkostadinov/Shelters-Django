@@ -1,0 +1,35 @@
+{% extends "common/base.html" %}
+
+{% block title %}Volunteers{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Volunteers</h1>
+    <a class="btn btn-secondary" href="/accounts/volunteers/new/">Add volunteer</a>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    {% for volunteer in volunteers %}
+      <div class="col">
+        <a class="text-decoration-none text-reset" href="{% url 'volunteer-detail' volunteer.id %}">
+          <div class="card h-100 shadow-sm">
+            <img
+              src="{{ volunteer.image_url }}"
+              class="card-img-top"
+              alt="{{ volunteer.name }}"
+              style="height: 320px; object-fit: cover;"
+            />
+            <div class="card-body">
+              <h5 class="card-title mb-1">{{ volunteer.name }}</h5>
+              <p class="text-muted small mb-0">{{ volunteer.display_title }}</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <div class="col">
+        <div class="alert alert-secondary mb-0">No volunteers available yet.</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

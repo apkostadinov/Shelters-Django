@@ -88,6 +88,11 @@ class ShelterEditForm(forms.ModelForm):
             "capacity": forms.NumberInput(attrs={"placeholder": "40", "min": "0"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["city"].disabled = True
+        self.fields["city"].help_text = "City can not be changed."
+
 
 class ShelterCaretakerAssignmentForm(forms.Form):
     caretakers = forms.ModelMultipleChoiceField(

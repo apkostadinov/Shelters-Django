@@ -8,5 +8,25 @@
     <a class="btn btn-secondary" href="/pets/new/">Add pet</a>
   </div>
 
+  <form class="card card-body shadow-sm mb-4" method="get">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label" for="shelterFilter">Shelter</label>
+        <select class="form-select" id="shelterFilter" name="shelter">
+          <option value="">All shelters</option>
+          {% for shelter in shelters %}
+            <option value="{{ shelter.id }}" {% if shelter.id|stringformat:"s" == selected_shelter %}selected{% endif %}>
+              {{ shelter.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6 d-flex gap-2">
+        <button type="submit" class="btn btn-secondary">Apply filter</button>
+        <a class="btn btn-outline-secondary" href="/pets/">Clear</a>
+      </div>
+    </div>
+  </form>
+
   {% include "common/card_grid.html" with items=pets card_template="pets/_card.html" empty_message="No pets available yet." %}
 {% endblock %}
