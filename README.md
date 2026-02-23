@@ -90,6 +90,23 @@ App runs at `http://127.0.0.1:8000/`.
 - If you use a different host/port or credentials, update `PetShelterDjango/settings.py` accordingly.
 - For a clean start, delete any existing data and rerun migrations.
 
+## Pages (Non-Admin, Non-Form)
+
+- Home (`/`): Highlights a randomly selected active shelter and shows its latest pets. The featured shelter is
+  randomized on each load.
+- Shelters List (`/shelters/`): Directory of active shelters with pet counts and a preview of recent arrivals.
+- Shelter Detail (`/shelters/<id>/`): Shelter profile with address, capacity, caretakers, pet counts, and the shelter’s
+  pets ordered by newest first.
+- Shelter Latest Additions (`/shelters/<id>/latest-additions/`): Shows the newest pets for a specific shelter. The
+  shelters cards in the list view include a badge "View more" that links to this page.
+- Pets List (`/pets/`): Browse active pets with optional shelter filtering; pet order is randomized each load.
+- Pet Detail (`/pets/<id>/`): Full pet profile with shelter info and assigned caretakers.
+- Caretakers List (`/accounts/caretakers/`): List of active caretakers.
+- Caretaker Detail (`/accounts/caretakers/<id>/`): Caretaker profile with assigned shelters and pets (newest first).
+- Volunteers List (`/accounts/volunteers/`): List of active volunteers.
+- Volunteer Detail (`/accounts/volunteers/<id>/`): Volunteer profile with experience level.
+- 404 Page: Custom not-found page for invalid routes.
+
 ## Seed Demo Data (Optional)
 
 ```bash

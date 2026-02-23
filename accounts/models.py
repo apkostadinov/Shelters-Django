@@ -35,6 +35,8 @@ class Account(models.Model):
     def display_title(self):
         raise NotImplementedError("Subclasses must implement display_title().")
 
+    def __str__(self):
+        return f'{self.name} ({self.display_title()})'
 
 class Volunteer(Account):
     EXPERIENCE_LEVEL_CHOICES = [
