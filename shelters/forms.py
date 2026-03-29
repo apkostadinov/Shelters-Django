@@ -1,7 +1,7 @@
 from django import forms
 
 from accounts.models import Caretaker
-from .models import Shelter
+from .models import Shelter, ShelterDashboard
 
 
 class ShelterCreateForm(forms.ModelForm):
@@ -114,3 +114,32 @@ class ShelterCaretakerAssignmentForm(forms.Form):
     def save(self):
         caretakers = self.cleaned_data["caretakers"]
         self.shelter.caretakers.set(caretakers)
+
+
+class ShelterDashboardForm(forms.ModelForm):
+    shelter_name = forms.CharField(label="Shelter", disabled=True, required=False)
+
+    class Meta:
+        model = ShelterDashboard
+        fields = [
+            "summary",
+            "priorities",
+        ]
+        labels = {
+            "summary": "Dashboard summary",
+            "priorities": "Current priorities",
+        }
+        help_texts = {
+            "summary": "Share a short status update for the team.",
+            "priorities": "List the most urgent items for this shelter.",
+        }
+        widgets = {
+            "summary": forms.Textarea(attrs={"rows": 4, "placeholder": "Latest shelter updates..."}),
+            "priorities": forms.Textarea(attrs={"rows": 4, "placeholder": "Top priorities..."}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        shelter = kwargs.pop("shelter", None)
+        super().__init__(*args, **kwargs)
+        if shelter:
+            self.fields["shelter_name"].initial = shelter.name

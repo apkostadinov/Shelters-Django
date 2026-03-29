@@ -1,5 +1,7 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Prefetch
-from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from accounts.models import Caretaker
 from shelters.models import Shelter
@@ -7,70 +9,69 @@ from .forms import PetCreateForm, PetEditForm
 from .models import Pet
 
 
-def pet_list(request):
-    shelters = Shelter.objects.filter(active=True).order_by("name")
-    shelter_id = request.GET.get("shelter")
-    pets = Pet.objects.filter(active=True, shelter__active=True)
-    selected_shelter = None
-    if shelter_id:
-        pets = pets.filter(shelter_id=shelter_id)
-        selected_shelter = shelter_id
+class PetListView(ListView):
+    model = Pet
+    template_name = "pets/list.html"
+    context_object_name = "pets"
 
-    pets = (
-        pets
-        .select_related("shelter")
-        .prefetch_related(Prefetch("caretakers", queryset=Caretaker.objects.filter(active=True)))
-        .order_by("?")
-    )
-    return render(
-        request,
-        "pets/list.html",
-        {
-            "pets": pets,
-            "shelters": shelters,
-            "selected_shelter": selected_shelter,
-        },
-    )
+    def get_queryset(self):
+        shelter_id = self.request.GET.get("shelter")
+        pets = Pet.objects.filter(active=True, shelter__active=True)
+        if shelter_id:
+            pets = pets.filter(shelter_id=shelter_id)
+        return (
+            pets.select_related("shelter")
+            .prefetch_related(Prefetch("caretakers", queryset=Caretaker.objects.filter(active=True)))
+            .order_by("?")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["shelters"] = Shelter.objects.filter(active=True).order_by("name")
+        context["selected_shelter"] = self.request.GET.get("shelter")
+        return context
 
 
-def pet_detail(request, pk):
-    pet = get_object_or_404(
-        Pet.objects.filter(active=True, shelter__active=True)
-        .select_related("shelter")
-        .prefetch_related(Prefetch("caretakers", queryset=Caretaker.objects.filter(active=True))),
-        pk=pk,
-    )
-    return render(request, "pets/detail.html", {"pet": pet})
+class PetDetailView(DetailView):
+    model = Pet
+    template_name = "pets/detail.html"
+    context_object_name = "pet"
+
+    def get_queryset(self):
+        return (
+            Pet.objects.filter(active=True, shelter__active=True)
+            .select_related("shelter")
+            .prefetch_related(Prefetch("caretakers", queryset=Caretaker.objects.filter(active=True)))
+        )
 
 
-def pet_create(request):
-    if request.method == "POST":
-        form = PetCreateForm(request.POST, request.FILES)
-        if form.is_valid():
-            pet = form.save()
-            return redirect("pet-detail", pk=pet.pk)
-    else:
-        form = PetCreateForm()
+class PetCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Pet
+    form_class = PetCreateForm
+    template_name = "pets/create.html"
+    permission_required = "pets.add_pet"
+    raise_exception = True
 
-    return render(request, "pets/create.html", {"form": form})
-
-
-def pet_edit(request, pk):
-    pet = get_object_or_404(Pet, pk=pk)
-    if request.method == "POST":
-        form = PetEditForm(request.POST, request.FILES, instance=pet)
-        if form.is_valid():
-            pet = form.save()
-            return redirect("pet-detail", pk=pet.pk)
-    else:
-        form = PetEditForm(instance=pet)
-
-    return render(request, "pets/edit.html", {"form": form, "pet": pet})
+    def get_success_url(self):
+        return reverse_lazy("pet-detail", kwargs={"pk": self.object.pk})
 
 
-def pet_delete(request, pk):
-    pet = get_object_or_404(Pet, pk=pk)
-    if request.method == "POST":
-        pet.delete()
-        return redirect("pet-list")
-    return render(request, "pets/confirm_delete.html", {"pet": pet})
+class PetUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Pet
+    form_class = PetEditForm
+    template_name = "pets/edit.html"
+    context_object_name = "pet"
+    permission_required = "pets.change_pet"
+    raise_exception = True
+
+    def get_success_url(self):
+        return reverse_lazy("pet-detail", kwargs={"pk": self.object.pk})
+
+
+class PetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Pet
+    template_name = "pets/confirm_delete.html"
+    context_object_name = "pet"
+    success_url = reverse_lazy("pet-list")
+    permission_required = "pets.delete_pet"
+    raise_exception = True

@@ -3,19 +3,19 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("caretakers/new/", views.caretaker_create, name="caretaker-create"),
-    path("volunteers/new/", views.volunteer_create, name="volunteer-create"),
-    path("caretakers/", views.caretaker_list, name="caretaker-list"),
-    path("volunteers/", views.volunteer_list, name="volunteer-list"),
-    path("caretakers/<int:pk>/", views.caretaker_detail, name="caretaker-detail"),
-    path("volunteers/<int:pk>/", views.volunteer_detail, name="volunteer-detail"),
-    path("caretakers/<int:pk>/edit/", views.caretaker_edit, name="caretaker-edit"),
-    path("volunteers/<int:pk>/edit/", views.volunteer_edit, name="volunteer-edit"),
-    path("caretakers/<int:pk>/delete/", views.caretaker_delete, name="caretaker-delete"),
-    path("volunteers/<int:pk>/delete/", views.volunteer_delete, name="volunteer-delete"),
+    path("caretakers/new/", views.CaretakerCreateView.as_view(), name="caretaker-create"),
+    path("volunteers/new/", views.VolunteerCreateView.as_view(), name="volunteer-create"),
+    path("caretakers/", views.CaretakerListView.as_view(), name="caretaker-list"),
+    path("volunteers/", views.VolunteerListView.as_view(), name="volunteer-list"),
+    path("caretakers/<int:pk>/", views.CaretakerDetailView.as_view(), name="caretaker-detail"),
+    path("volunteers/<int:pk>/", views.VolunteerDetailView.as_view(), name="volunteer-detail"),
+    path("caretakers/<int:pk>/edit/", views.CaretakerUpdateView.as_view(), name="caretaker-edit"),
+    path("volunteers/<int:pk>/edit/", views.VolunteerUpdateView.as_view(), name="volunteer-edit"),
+    path("caretakers/<int:pk>/delete/", views.CaretakerDeleteView.as_view(), name="caretaker-delete"),
+    path("volunteers/<int:pk>/delete/", views.VolunteerDeleteView.as_view(), name="volunteer-delete"),
     path(
         "caretakers/<int:pk>/assign-pets/",
-        views.caretaker_assign_pets,
+        views.CaretakerAssignPetsView.as_view(),
         name="caretaker-assign-pets",
     ),
 ]

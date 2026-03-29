@@ -16,6 +16,11 @@ class Shelter(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     caretakers = models.ManyToManyField("accounts.Caretaker", blank=True, related_name="shelters")
+    staff_members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name="staffed_shelters",
+    )
 
     def __str__(self):
         return self.name
@@ -33,3 +38,17 @@ class Shelter(models.Model):
         if self.image and hasattr(self.image, "url"):
             return self.image.url
         return f"{settings.MEDIA_URL}defaults/shelters.png"
+
+
+class ShelterDashboard(models.Model):
+    shelter = models.OneToOneField(
+        Shelter,
+        on_delete=models.CASCADE,
+        related_name="dashboard",
+    )
+    summary = models.TextField(blank=True)
+    priorities = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Dashboard: {self.shelter.name}"

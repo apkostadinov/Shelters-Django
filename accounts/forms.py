@@ -195,7 +195,7 @@ class CaretakerEditForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Avery Collins"}),
             "email": forms.EmailInput(attrs={"placeholder": "caretaker@example.com"}),
-            "phone_number": forms.TextInput(attrs={"placeholder": "555-0123"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "359 888 888 888"}),
         }
 
     def __init__(self, *args, **kwargs):
