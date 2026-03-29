@@ -1,0 +1,33 @@
+*.xml
+*.iml
+*.pyc
+
+# Virtual environments
+.venv/
+env/
+venv/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# PyCharm
+.idea/
+.idea/*

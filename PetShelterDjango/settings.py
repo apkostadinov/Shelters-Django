@@ -12,20 +12,33 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
+import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, False),
+)
+environ.Env.read_env(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3ifr@hsz_1$k7_*va2ng60!6x+l38t82=&)lvb(@(m+92ouqrn'
+SECRET_KEY = env("SECRET_KEY", default="")
+if not SECRET_KEY:
+    if env.bool("DEBUG", default=False):
+        SECRET_KEY = "insecure-dev-key"
+    else:
+        raise ImproperlyConfigured("SECRET_KEY is not set.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 
 # Application definition
@@ -33,7 +46,9 @@ PROJECT_APPS = [
     'common',
     'accounts',
     'pets',
-    'shelters',
+    'shelters.apps.SheltersConfig',
+    'users',
+    'booking.apps.BookingConfig',
 ]
 
 
@@ -81,15 +96,10 @@ WSGI_APPLICATION = 'PetShelterDjango.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "shelterdatabase",
-        "USER": "myuser",
-        "PASSWORD": "mypassword",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
-    }
+    "default": env.db("DATABASE_URL", default=""),
 }
+if not DATABASES["default"]:
+    raise ImproperlyConfigured("DATABASE_URL is not set.")
 
 
 # Password validation
@@ -109,6 +119,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTH_USER_MODEL = "users.User"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "homepage"
+LOGOUT_REDIRECT_URL = "homepage"
 
 
 # Internationalization
