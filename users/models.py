@@ -12,6 +12,7 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=30, blank=True)
     city = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to=user_avatar_upload_to, blank=True)
+    is_shelter_manager = models.BooleanField(default=False)
 
     @property
     def avatar_url(self):
