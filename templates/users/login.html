@@ -1,0 +1,18 @@
+{% extends "common/base.html" %}
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <h1 class="mb-3">Welcome back</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">Log in</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'signup' %}">Create account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

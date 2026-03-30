@@ -1,0 +1,38 @@
+{% extends "common/base.html" %}
+
+{% block title %}{{ shelter.name }} Dashboard{% endblock %}
+
+{% block content %}
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+            <h1 class="h3 mb-1">{{ shelter.name }} Dashboard</h1>
+            <div class="text-muted small">Internal shelter updates</div>
+        </div>
+        {% if request.user.is_shelter_manager %}
+            <a class="btn btn-secondary" href="{% url 'shelter-dashboard-edit' shelter.id %}">Edit dashboard</a>
+        {% endif %}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-muted">Summary</h2>
+                    <p class="mb-0">{{ dashboard.summary|default:"No summary provided yet." }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-muted">Priorities</h2>
+                    <p class="mb-0">{{ dashboard.priorities|default:"No priorities listed yet." }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a class="btn btn-outline-secondary" href="{% url 'shelter-detail' shelter.id %}">Back to shelter</a>
+    </div>
+{% endblock %}

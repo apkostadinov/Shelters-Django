@@ -46,11 +46,29 @@
               <a class="nav-link" href="/shelters/">Shelters</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/accounts/caretakers">Caretakers</a>
+                <a class="nav-link" href="/accounts/caretakers/">Caretakers</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/accounts/volunteers/">Volunteers</a>
             </li>
+              {% if request.user.is_authenticated %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/users/me/">My profile</a>
+                  </li>
+                  <li class="nav-item">
+                      <form method="post" action="/users/logout/">
+                          {% csrf_token %}
+                          <button class="btn btn-link nav-link" type="submit">Log out</button>
+                      </form>
+                  </li>
+              {% else %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/users/login/">Log in</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/users/signup/">Sign up</a>
+                  </li>
+              {% endif %}
           </ul>
         </div>
       </div>
@@ -72,6 +90,16 @@
           <a class="text-decoration-none text-muted" href="/accounts/volunteers/">Volunteers</a>
           <a class="text-decoration-none text-muted" href="/accounts/caretakers/new/">Add caretaker</a>
           <a class="text-decoration-none text-muted" href="/accounts/volunteers/new/">Add volunteer</a>
+            {% if request.user.is_authenticated %}
+                <a class="text-decoration-none text-muted" href="/users/me/">My profile</a>
+                <form method="post" action="/users/logout/" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-link p-0 text-decoration-none text-muted" type="submit">Log out</button>
+                </form>
+            {% else %}
+                <a class="text-decoration-none text-muted" href="/users/login/">Log in</a>
+                <a class="text-decoration-none text-muted" href="/users/signup/">Sign up</a>
+            {% endif %}
         </div>
         <div class="text-muted small">
           &copy; {% now "Y" %} Alexander Kostadinov

@@ -22,6 +22,10 @@
         </div>
         <div>
           <a class="btn btn-sm btn-secondary" href="{% url 'shelter-edit' shelter.id %}">Edit shelter</a>
+            {% if can_view_dashboard %}
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{% url 'shelter-dashboard' shelter.id %}">Dashboard</a>
+            {% endif %}
         </div>
       </div>
       <div class="mb-3">{{ shelter.address }}</div>
