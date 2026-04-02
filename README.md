@@ -8,6 +8,11 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - Pets: list (randomized), filter by shelter, detail, create, edit, delete
 - Caretakers: list, detail, create, edit, delete, assign pets
 - Volunteers: list, detail, create, edit, delete
+- Users: signup, login/logout, profile detail/edit (custom `AUTH_USER_MODEL`)
+- Bookings: list, detail, create, edit, delete with owner/manager access rules
+- Feeding Tasks: manager flow (list/detail/create/edit/delete)
+- Groups/permissions command for booking roles (`ShelterAdmin`, `CaretakerManager`)
+- DRF API endpoint for bookings (`/api/bookings/`)
 - Custom 404 page
 - Reusable templates and Bootstrap styling
 
@@ -15,6 +20,7 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 
 - Python
 - Django
+- Django REST Framework
 - PostgreSQL
 - Bootstrap (via CDN)
 
@@ -23,6 +29,8 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - `accounts/` — caretakers and volunteers
 - `pets/` — pets and pet assignments
 - `shelters/` — shelters and caretaker assignments
+- `users/` — custom user model and auth/profile flows
+- `booking/` — bookings and feeding task workflows
 - `common/` — shared pages and components
 - `templates/` — Django templates
 
@@ -52,27 +60,29 @@ Windows (PowerShell):
 pip install -r requirements.txt
 ```
 
-### 4. Configure PostgreSQL
+### 4. Configure environment variables
 
-Create a database and user, then update `PetShelterDjango/settings.py`:
+Copy `.env.example` to `.env` and update values:
 
-```python
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "<database name>",
-        "USER": "<user>",
-        "PASSWORD": "<password>",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
-    }
-}
 ```
+SECRET_KEY=replace-me
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:5432/shelterdatabase
+```
+
+Ensure the database exists in PostgreSQL and the credentials match the `DATABASE_URL`.
 
 ### 5. Run migrations
 
 ```bash
 python manage.py migrate
+```
+
+### 5.1 Seed booking groups and permissions
+
+```bash
+python manage.py seed_booking_groups
 ```
 
 ### 6. Start the server
@@ -105,7 +115,26 @@ App runs at `http://127.0.0.1:8000/`.
 - Caretaker Detail (`/accounts/caretakers/<id>/`): Caretaker profile with assigned shelters and pets (newest first).
 - Volunteers List (`/accounts/volunteers/`): List of active volunteers.
 - Volunteer Detail (`/accounts/volunteers/<id>/`): Volunteer profile with experience level.
+- My Profile (`/users/me/`) and Edit Profile (`/users/me/edit/`)
+- Booking List (`/booking/`) and CRUD routes
+- Feeding Task manager routes (`/booking/feeding-tasks/`)
 - 404 Page: Custom not-found page for invalid routes.
+
+## Role Model
+
+- Regular authenticated users can create and manage only their own pending bookings.
+- `ShelterAdmin` can view all bookings and has full booking/feeding task permissions.
+- `CaretakerManager` has viewing and change-level task permissions based on assigned Django permissions.
+
+## API
+
+- `GET /api/bookings/`: list bookings
+    - Regular users: own bookings only
+    - Users with `booking.view_booking` in manager group: all bookings
+- `POST /api/bookings/`: create booking
+    - Requires authenticated user
+    - Non-manager users can only book pets with `available_for_volunteers=True`
+    - Non-manager users can only create `pending` status bookings
 
 ## Seed Demo Data (Optional)
 
@@ -117,19 +146,17 @@ python manage.py seed_demo --reset
 
 - The custom 404 page is shown when `DEBUG = False`.
 - Images are optional. Default images are used when none are uploaded.
+- Custom `500.html` and `403.html` templates are included in `templates/`.
 
 ## Tests
 
-No automated tests are included yet.
+Automated tests are included, with focus on booking and permissions:
+
+- FeedingTask model validation (`clean`/save behavior)
+- Booking owner access rules (detail/edit/delete)
+- Permission denial and manager permission behavior in CBVs
+- DRF API responses and booking creation rules
 
 ## License
 
 See `LICENSE`.
-
-
-## TODOs
-- [ ] Add automated tests
-- [ ] Add more validation
-- [ ] Add a booking features
-- [ ] Add a user profile page
-- [ ] Add a search feature

@@ -1,0 +1,32 @@
+{% extends "common/base.html" %}
+
+{% block title %}Feeding Task #{{ feeding_task.id }}{% endblock %}
+
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <h1 class="h4 mb-0">Feeding Task #{{ feeding_task.id }}</h1>
+                <span class="badge bg-secondary">{{ feeding_task.get_status_display }}</span>
+            </div>
+
+            <p class="mb-1"><strong>Pet:</strong> {{ feeding_task.pet.name }}</p>
+            <p class="mb-1"><strong>Caretaker:</strong> {{ feeding_task.caretaker|default:"-" }}</p>
+            <p class="mb-1"><strong>Scheduled for:</strong> {{ feeding_task.scheduled_for }}</p>
+            <p class="mb-3"><strong>Requested by:</strong> {{ feeding_task.requested_by|default:"-" }}</p>
+
+            {% if feeding_task.notes %}
+                <div class="mb-4">
+                    <strong>Notes:</strong>
+                    <div class="mt-2">{{ feeding_task.notes|linebreaksbr }}</div>
+                </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'feeding-task-edit' feeding_task.id %}" class="btn btn-secondary">Edit</a>
+                <a href="{% url 'feeding-task-delete' feeding_task.id %}" class="btn btn-outline-danger">Delete</a>
+                <a href="{% url 'feeding-task-list' %}" class="btn btn-outline-secondary ms-auto">Back</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

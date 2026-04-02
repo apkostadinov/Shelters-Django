@@ -1,0 +1,31 @@
+{% extends "common/base.html" %}
+
+{% block title %}Booking #{{ booking.id }}{% endblock %}
+
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <h1 class="h4 mb-0">Booking #{{ booking.id }}</h1>
+                <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+            </div>
+
+            <p class="mb-1"><strong>Pet:</strong> {{ booking.pet.name }}</p>
+            <p class="mb-1"><strong>Scheduled for:</strong> {{ booking.scheduled_for }}</p>
+            <p class="mb-3"><strong>Requested by:</strong> {{ booking.requested_by }}</p>
+
+            {% if booking.notes %}
+                <div class="mb-4">
+                    <strong>Notes:</strong>
+                    <div class="mt-2">{{ booking.notes|linebreaksbr }}</div>
+                </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'booking-edit' booking.id %}" class="btn btn-secondary">Edit</a>
+                <a href="{% url 'booking-delete' booking.id %}" class="btn btn-outline-danger">Delete</a>
+                <a href="{% url 'booking-list' %}" class="btn btn-outline-secondary ms-auto">Back</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
