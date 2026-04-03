@@ -3,10 +3,10 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Create default groups with permissions."
+    help = "Create default groups with distinct permissions."
 
     GROUPS = {
-        "ShelterAdmins": [
+        "ShelterAdmin": [
             "add_shelter",
             "change_shelter",
             "delete_shelter",
@@ -15,8 +15,16 @@ class Command(BaseCommand):
             "change_pet",
             "delete_pet",
             "view_pet",
+            "view_booking",
+            "add_booking",
+            "change_booking",
+            "delete_booking",
+            "view_feedingtask",
+            "add_feedingtask",
+            "change_feedingtask",
+            "delete_feedingtask",
         ],
-        "CaretakerManagers": [
+        "CaretakerManager": [
             "add_caretaker",
             "change_caretaker",
             "delete_caretaker",
@@ -25,6 +33,10 @@ class Command(BaseCommand):
             "change_volunteer",
             "delete_volunteer",
             "view_volunteer",
+            "view_booking",
+            "change_booking",
+            "view_feedingtask",
+            "change_feedingtask",
         ],
     }
 

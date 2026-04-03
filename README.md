@@ -11,7 +11,7 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - Users: signup, login/logout, profile detail/edit (custom `AUTH_USER_MODEL`)
 - Bookings: list, detail, create, edit, delete with owner/manager access rules
 - Feeding Tasks: manager flow (list/detail/create/edit/delete)
-- Groups/permissions command for booking roles (`ShelterAdmin`, `CaretakerManager`)
+- Groups/permissions command (`seed_groups`) for roles (`ShelterAdmin`, `CaretakerManager`)
 - DRF API endpoint for bookings (`/api/bookings/`)
 - Custom 404 page
 - Reusable templates and Bootstrap styling
@@ -22,6 +22,8 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - Django
 - Django REST Framework
 - PostgreSQL
+- Gunicorn
+- WhiteNoise
 - Bootstrap (via CDN)
 
 ## Project Structure
@@ -79,10 +81,10 @@ Ensure the database exists in PostgreSQL and the credentials match the `DATABASE
 python manage.py migrate
 ```
 
-### 5.1 Seed booking groups and permissions
+### 5.1 Seed default groups and permissions
 
 ```bash
-python manage.py seed_booking_groups
+python manage.py seed_groups
 ```
 
 ### 6. Start the server
@@ -92,6 +94,20 @@ python manage.py runserver
 ```
 
 App runs at `http://127.0.0.1:8000/`.
+
+## Azure Deployment (App Service)
+
+Use this startup command in Azure App Service:
+
+```bash
+bash startup.sh
+```
+
+The script:
+
+- applies migrations
+- runs `collectstatic --noinput`
+- starts Gunicorn (`PetShelterDjango.wsgi`)
 
 ## Project Setup Notes
 
