@@ -49,6 +49,18 @@ class Volunteer(Account):
         max_length=20,
         choices=EXPERIENCE_LEVEL_CHOICES,
     )
+    user = models.OneToOneField(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="volunteer_profile",
+    )
+    shelters = models.ManyToManyField(
+        "shelters.Shelter",
+        blank=True,
+        related_name="volunteers",
+    )
 
     def display_title(self):
         return self.get_experience_level_display()
@@ -64,6 +76,13 @@ class Caretaker(Account):
     specialization = models.CharField(
         max_length=20,
         choices=SPECIALIZATION_CHOICES,
+    )
+    user = models.OneToOneField(
+        "users.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="caretaker_profile",
     )
 
     def display_title(self):

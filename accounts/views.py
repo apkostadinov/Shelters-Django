@@ -1,9 +1,10 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
 
 from pets.models import Pet
+from .access import can_view_volunteers
 
 from .forms import (
     CaretakerCreateForm,
@@ -66,22 +67,45 @@ class VolunteerCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateVie
         return reverse_lazy("volunteer-detail", kwargs={"pk": self.object.pk})
 
 
-class VolunteerListView(ListView):
+class VolunteerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Volunteer
     template_name = "accounts/volunteer_list.html"
     context_object_name = "volunteers"
 
     def get_queryset(self):
-        return Volunteer.objects.filter(active=True).order_by("name")
+        user = self.request.user
+        volunteers = Volunteer.objects.filter(active=True)
+        if user.is_superuser:
+            return volunteers.order_by("name")
+        return (
+            volunteers.filter(shelters__in=user.staffed_shelters.filter(active=True))
+            .distinct()
+            .order_by("name")
+        )
+
+    def test_func(self):
+        return can_view_volunteers(self.request.user)
 
 
-class VolunteerDetailView(DetailView):
+class VolunteerDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Volunteer
     template_name = "accounts/volunteer_detail.html"
     context_object_name = "volunteer"
 
     def get_queryset(self):
-        return Volunteer.objects.filter(active=True)
+        user = self.request.user
+        volunteers = Volunteer.objects.filter(active=True)
+        if user.is_superuser:
+            return volunteers
+        return volunteers.filter(shelters__in=user.staffed_shelters.filter(active=True)).distinct()
+
+    def test_func(self):
+        return can_view_volunteers(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["shelters"] = self.object.shelters.filter(active=True).order_by("name")
+        return context
 
 
 class CaretakerAssignPetsView(LoginRequiredMixin, PermissionRequiredMixin, FormView):

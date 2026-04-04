@@ -71,9 +71,21 @@ SECRET_KEY=replace-me
 DEBUG=True
 ALLOWED_HOSTS=127.0.0.1,localhost
 DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:5432/shelterdatabase
+ADMIN_NAME=admin
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change-me
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@example.com
+EMAIL_HOST_PASSWORD=your-app-password
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+DEFAULT_FROM_EMAIL=Pet Shelter <noreply@example.com>
 ```
 
 Ensure the database exists in PostgreSQL and the credentials match the `DATABASE_URL`.
+For Gmail and similar providers, use an app-specific password (not your account password).
 
 ### 5. Run migrations
 
@@ -85,6 +97,12 @@ python manage.py migrate
 
 ```bash
 python manage.py seed_groups
+```
+
+### 5.2 Seed admin user from environment variables
+
+```bash
+python manage.py seed_admin
 ```
 
 ### 6. Start the server

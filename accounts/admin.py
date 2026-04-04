@@ -7,10 +7,12 @@ from .models import Caretaker, Volunteer
 
 @admin.register(Volunteer)
 class VolunteerAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "phone_number", "experience_level", "active")
+    list_display = ("name", "email", "phone_number", "experience_level", "user", "active")
     list_filter = ("experience_level", "active")
-    search_fields = ("name", "email", "phone_number")
+    search_fields = ("name", "email", "phone_number", "user__username", "user__email")
     ordering = ("name",)
+    filter_horizontal = ("shelters",)
+    autocomplete_fields = ("user",)
 
 
 @admin.register(Caretaker)

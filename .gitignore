@@ -1,6 +1,7 @@
 *.xml
 *.iml
 *.pyc
+*.yaml
 
 # Virtual environments
 .venv/

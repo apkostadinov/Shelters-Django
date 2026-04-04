@@ -38,9 +38,9 @@ class ShelterCreateForm(forms.ModelForm):
             },
         }
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "North Ridge Shelter"}),
-            "city": forms.TextInput(attrs={"placeholder": "Austin"}),
-            "address": forms.TextInput(attrs={"placeholder": "123 Maple Ave"}),
+            "name": forms.TextInput(attrs={"placeholder": "Happy Feet Shelter"}),
+            "city": forms.TextInput(attrs={"placeholder": "Sofia"}),
+            "address": forms.TextInput(attrs={"placeholder": "ul. Ivaylo 13"}),
             "capacity": forms.NumberInput(attrs={"placeholder": "40", "min": "0"}),
         }
 
@@ -82,9 +82,9 @@ class ShelterEditForm(forms.ModelForm):
             },
         }
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "North Ridge Shelter"}),
-            "city": forms.TextInput(attrs={"placeholder": "Austin"}),
-            "address": forms.TextInput(attrs={"placeholder": "123 Maple Ave"}),
+            "name": forms.TextInput(attrs={"placeholder": "Happy Feet Shelter"}),
+            "city": forms.TextInput(attrs={"placeholder": "Sofia"}),
+            "address": forms.TextInput(attrs={"placeholder": "ul. Ivaylo 13"}),
             "capacity": forms.NumberInput(attrs={"placeholder": "40", "min": "0"}),
         }
 

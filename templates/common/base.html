@@ -51,9 +51,11 @@
               <li class="nav-item">
                 <a class="nav-link" href="/accounts/caretakers/">Caretakers</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/accounts/volunteers/">Volunteers</a>
-            </li>
+              {% if can_view_volunteers %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/accounts/volunteers/">Volunteers</a>
+                  </li>
+              {% endif %}
               {% if request.user.is_authenticated %}
                   <li class="nav-item">
                       <a class="nav-link" href="/users/me/">My profile</a>
@@ -92,9 +94,13 @@
             <a class="text-decoration-none text-muted" href="/booking/">Bookings</a>
             <a class="text-decoration-none text-muted" href="/booking/new/">Create booking</a>
           <a class="text-decoration-none text-muted" href="/accounts/caretakers/">Caretakers</a>
-          <a class="text-decoration-none text-muted" href="/accounts/volunteers/">Volunteers</a>
+            {% if can_view_volunteers %}
+                <a class="text-decoration-none text-muted" href="/accounts/volunteers/">Volunteers</a>
+            {% endif %}
           <a class="text-decoration-none text-muted" href="/accounts/caretakers/new/">Add caretaker</a>
-          <a class="text-decoration-none text-muted" href="/accounts/volunteers/new/">Add volunteer</a>
+            {% if can_view_volunteers %}
+                <a class="text-decoration-none text-muted" href="/accounts/volunteers/new/">Add volunteer</a>
+            {% endif %}
             {% if request.user.is_authenticated %}
                 <a class="text-decoration-none text-muted" href="/users/me/">My profile</a>
                 <form method="post" action="/users/logout/" class="d-inline">

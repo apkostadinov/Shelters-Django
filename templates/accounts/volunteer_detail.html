@@ -27,6 +27,14 @@
       <div class="mb-3">
         <div class="small text-muted">Email: {{ volunteer.email }}</div>
         <div class="small text-muted">Phone: {{ volunteer.phone_number }}</div>
+          <div class="small text-muted">
+              Shelters:
+              {% for shelter in shelters %}
+                  {{ shelter.name }}{% if not forloop.last %}, {% endif %}
+              {% empty %}
+                  Not assigned
+              {% endfor %}
+          </div>
       </div>
     </div>
   </div>
