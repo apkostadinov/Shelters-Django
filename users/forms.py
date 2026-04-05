@@ -28,9 +28,12 @@ class UserRegistrationForm(UserCreationForm):
         help_texts = {
             "username": "Pick a unique username.",
             "email": "We use this for login and notifications.",
-            "phone_number": "Optional contact phone.",
+            "phone_number": "Optional. Format: +359 followed by 9 digits.",
             "city": "Optional home city.",
             "avatar": "Optional. JPG or PNG recommended.",
+        }
+        widgets = {
+            "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
         }
         error_messages = {
             "username": {"required": "Please choose a username."},
@@ -67,7 +70,11 @@ class UserProfileForm(forms.ModelForm):
         }
         help_texts = {
             "email": "This is your login email.",
+            "phone_number": "Format: +359 followed by 9 digits.",
             "username": "Your username cannot be changed.",
+        }
+        widgets = {
+            "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
         }
 
     def __init__(self, *args, **kwargs):

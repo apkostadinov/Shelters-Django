@@ -69,7 +69,7 @@ class CaretakerCreateForm(forms.ModelForm):
         help_texts = {
             "name": "First and last name preferred.",
             "email": "Used for internal contact.",
-            "phone_number": "Include country/area code if possible.",
+            "phone_number": "Required format: +359 followed by 9 digits.",
             "image": "Optional. JPG or PNG recommended.",
             "specialization": "Select the caretaker’s primary focus.",
         }
@@ -85,7 +85,7 @@ class CaretakerCreateForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Avery Collins"}),
             "email": forms.EmailInput(attrs={"placeholder": "caretaker@example.com"}),
-            "phone_number": forms.TextInput(attrs={"placeholder": "555-0123"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
         }
 
     def clean(self):
@@ -176,7 +176,7 @@ class VolunteerCreateForm(forms.ModelForm):
         help_texts = {
             "name": "First and last name preferred.",
             "email": "Used for internal contact.",
-            "phone_number": "Include country/area code if possible.",
+            "phone_number": "Required format: +359 followed by 9 digits.",
             "image": "Optional. JPG or PNG recommended.",
             "experience_level": "Choose the level that best fits.",
         }
@@ -192,7 +192,7 @@ class VolunteerCreateForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Peter Ivanov"}),
             "email": forms.EmailInput(attrs={"placeholder": "volunteer@example.com"}),
-            "phone_number": forms.TextInput(attrs={"placeholder": "+359 888 888 888"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -250,7 +250,7 @@ class VolunteerEditForm(forms.ModelForm):
         help_texts = {
             "name": "First and last name preferred.",
             "email": "Used for internal contact.",
-            "phone_number": "Include country/area code if possible.",
+            "phone_number": "Required format: +359 followed by 9 digits.",
             "image": "Optional. JPG or PNG recommended.",
             "experience_level": "Choose the level that best fits.",
             "active": "Turn off to hide this volunteer from public lists.",
@@ -267,7 +267,7 @@ class VolunteerEditForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Peter Ivanov"}),
             "email": forms.EmailInput(attrs={"placeholder": "volunteer@example.com"}),
-            "phone_number": forms.TextInput(attrs={"placeholder": "+359 888 888 888"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -331,7 +331,7 @@ class CaretakerEditForm(forms.ModelForm):
         help_texts = {
             "name": "First and last name preferred.",
             "email": "Used for internal contact.",
-            "phone_number": "Include country/area code if possible.",
+            "phone_number": "Required format: +359 followed by 9 digits.",
             "image": "Optional. JPG or PNG recommended.",
             "specialization": "Select the caretaker’s primary focus.",
             "active": "Turn off to hide this caretaker from public lists.",
@@ -348,7 +348,7 @@ class CaretakerEditForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Eva Dobreva"}),
             "email": forms.EmailInput(attrs={"placeholder": "caretaker@example.com"}),
-            "phone_number": forms.TextInput(attrs={"placeholder": "359 888 888 888"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
         }
 
     def __init__(self, *args, **kwargs):

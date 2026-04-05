@@ -12,6 +12,5 @@ def format_phone(value):
     if len(digits) == 10:
         return f"+359 {digits[1:4]} {digits[4:7]} {digits[7:10]}"
     if len(digits) == 12 and digits.startswith("359"):
-        return f"+{digits[0:3]} {digits[4:7]} {digits[7:11]}"
+        return f"+{digits[0:3]} {digits[3:6]} {digits[6:9]} {digits[9:12]}"
     return value
-

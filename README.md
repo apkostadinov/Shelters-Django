@@ -100,17 +100,9 @@ For Gmail and similar providers, use an app-specific password (not your account 
 python manage.py migrate
 ```
 
-### 5.1 Seed default groups and permissions
-
-```bash
-python manage.py seed_groups
-```
-
-### 5.2 Seed admin user from environment variables
-
-```bash
-python manage.py seed_admin
-```
+Groups/permissions are seeded via data migration.
+Admin user is also created/updated by migration if `ADMIN_NAME` and `ADMIN_PASSWORD` are set.
+Default shelters, caretakers, and volunteers are seeded via data migration.
 
 ### 6. Start the server
 
@@ -138,6 +130,7 @@ The script:
 
 - applies migrations
 - runs `collectstatic --noinput`
+- seeds groups/admin via migration
 - starts Gunicorn (`PetShelterDjango.wsgi`)
 
 For async tasks in Azure, run a second worker process with:

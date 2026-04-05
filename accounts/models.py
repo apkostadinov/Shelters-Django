@@ -1,5 +1,11 @@
 from django.conf import settings
+from django.core.validators import RegexValidator
 from django.db import models
+
+phone_validator = RegexValidator(
+    regex=r"^\+359\d{9}$",
+    message="Enter a valid phone number in format +359XXXXXXXXX.",
+)
 
 
 def account_image_upload_to(instance, filename):
@@ -9,7 +15,7 @@ def account_image_upload_to(instance, filename):
 class Account(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=13, validators=[phone_validator])
     image = models.ImageField(upload_to=account_image_upload_to, blank=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
