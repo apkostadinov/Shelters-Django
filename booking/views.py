@@ -17,6 +17,7 @@ from .permissions import (
     can_view_all_bookings,
     can_view_feeding_tasks,
 )
+from .tasks import send_booking_notification_email, send_feeding_task_assignment_email
 
 
 class BookingAccessMixin(LoginRequiredMixin):
@@ -52,7 +53,9 @@ class BookingCreateView(BookingAccessMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.requested_by = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        send_booking_notification_email.delay(self.object.pk, "created")
+        return response
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -82,6 +85,11 @@ class BookingUpdateView(BookingAccessMixin, UserPassesTestMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        send_booking_notification_email.delay(self.object.pk, "updated")
+        return response
 
 
 class BookingDeleteView(BookingAccessMixin, UserPassesTestMixin, DeleteView):
@@ -130,6 +138,17 @@ class FeedingTaskCreateView(FeedingTaskAccessMixin, CreateView):
         kwargs["user"] = self.request.user
         return kwargs
 
+    def form_valid(self, form):
+        form.instance.requested_by = self.request.user
+        response = super().form_valid(form)
+        if self.object.caretaker_id:
+            send_feeding_task_assignment_email.delay(
+                self.object.pk,
+                self.request.user.get_username(),
+                "assigned",
+            )
+        return response
+
     def get_success_url(self):
         return reverse_lazy("feeding-task-detail", kwargs={"pk": self.object.pk})
 
@@ -147,6 +166,21 @@ class FeedingTaskUpdateView(FeedingTaskAccessMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
         return kwargs
+
+    def form_valid(self, form):
+        old_caretaker_id = self.get_object().caretaker_id
+        response = super().form_valid(form)
+        new_caretaker_id = self.object.caretaker_id
+
+        if new_caretaker_id and new_caretaker_id != old_caretaker_id:
+            event = "reassigned" if old_caretaker_id else "assigned"
+            send_feeding_task_assignment_email.delay(
+                self.object.pk,
+                self.request.user.get_username(),
+                event,
+            )
+
+        return response
 
     def get_success_url(self):
         return reverse_lazy("feeding-task-detail", kwargs={"pk": self.object.pk})

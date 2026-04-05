@@ -1,11 +1,13 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import Group
+from unittest.mock import patch
 
 from shelters.models import Shelter
 from users.models import User
 
-from .models import Volunteer
+from pets.models import Pet
+from .models import Caretaker, Volunteer
 
 
 class VolunteerAccessTests(TestCase):
@@ -90,3 +92,40 @@ class VolunteerAccessTests(TestCase):
         self.client.login(username="caretaker_user", password="pass12345")
         response = self.client.get(reverse("volunteer-detail", kwargs={"pk": self.volunteer_b.pk}))
         self.assertEqual(response.status_code, 404)
+
+
+class CaretakerPetAssignmentNotificationTests(TestCase):
+    def setUp(self):
+        self.shelter = Shelter.objects.create(
+            name="Main Shelter",
+            city="Sofia",
+            address="Address",
+            capacity=30,
+            active=True,
+        )
+        self.caretaker = Caretaker.objects.create(
+            name="John Care",
+            email="care@example.com",
+            phone_number="1234567890",
+            specialization="behavior",
+            active=True,
+        )
+        self.caretaker.shelters.add(self.shelter)
+        self.pet = Pet.objects.create(
+            name="Rex",
+            species=Pet.AnimalSpecies.DOG,
+            age=3,
+            description="Friendly",
+            shelter=self.shelter,
+            active=True,
+        )
+
+    @patch("accounts.signals.send_caretaker_pet_assignment_email.delay")
+    def test_signal_queues_email_on_caretaker_side_assignment(self, mocked_delay):
+        self.caretaker.pet_set.add(self.pet)
+        mocked_delay.assert_called_once_with(self.caretaker.pk, self.pet.pk)
+
+    @patch("accounts.signals.send_caretaker_pet_assignment_email.delay")
+    def test_signal_queues_email_on_pet_side_assignment(self, mocked_delay):
+        self.pet.caretakers.add(self.caretaker)
+        mocked_delay.assert_called_once_with(self.caretaker.pk, self.pet.pk)

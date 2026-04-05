@@ -5,7 +5,9 @@
 {% block content %}
   <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Shelters</h1>
-    <a class="btn btn-secondary" href="/shelters/new/">Add shelter</a>
+      {% if perms.shelters.add_shelter %}
+          <a class="btn btn-secondary" href="/shelters/new/">Add shelter</a>
+      {% endif %}
   </div>
 
   <div class="d-flex flex-column gap-3">

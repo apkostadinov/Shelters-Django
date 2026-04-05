@@ -3,6 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, UpdateView
 
+from accounts.models import Volunteer
 from .forms import UserProfileForm, UserRegistrationForm
 from .models import User
 
@@ -12,6 +13,22 @@ class SignUpView(CreateView):
     form_class = UserRegistrationForm
     template_name = "users/signup.html"
     success_url = reverse_lazy("login")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        user = self.object
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        Volunteer.objects.get_or_create(
+            user=user,
+            defaults={
+                "name": full_name or user.username,
+                "email": user.email,
+                "phone_number": user.phone_number or "",
+                "experience_level": "beginner",
+            },
+        )
+        return response
 
 
 class UserLoginView(LoginView):

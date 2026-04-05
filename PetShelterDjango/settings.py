@@ -44,7 +44,7 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 # Application definition
 PROJECT_APPS = [
     'common',
-    'accounts',
+    'accounts.apps.AccountsConfig',
     'pets',
     'shelters.apps.SheltersConfig',
     'users',
@@ -201,3 +201,10 @@ CACHES = {
         "LOCATION": REDIS_URL,
     }
 }
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=REDIS_URL)
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=REDIS_URL)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE

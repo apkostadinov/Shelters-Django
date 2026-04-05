@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
@@ -231,6 +232,77 @@ class BookingCBVAccessTests(BookingBaseDataMixin, TestCase):
         self.client.login(username="manager", password="pass12345")
         response = self.client.post(reverse("booking-delete", kwargs={"pk": self.owner_booking.pk}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch("booking.views.send_feeding_task_assignment_email.delay")
+    def test_feeding_task_create_queues_assignment_notification(self, mocked_delay):
+        self.assign_permissions(
+            self.manager,
+            "ShelterAdmin",
+            ["view_feedingtask", "add_feedingtask", "change_feedingtask"],
+        )
+        self.client.login(username="manager", password="pass12345")
+
+        response = self.client.post(
+            reverse("feeding-task-create"),
+            data={
+                "pet": self.pet_public.id,
+                "caretaker": self.caretaker_ok.id,
+                "scheduled_for": (timezone.now() + timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M"),
+                "status": Booking.Status.PENDING,
+                "notes": "feed task",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        created = FeedingTask.objects.order_by("-id").first()
+        self.assertIsNotNone(created)
+        mocked_delay.assert_called_once_with(
+            created.pk,
+            self.manager.get_username(),
+            "assigned",
+        )
+
+    @patch("booking.views.send_feeding_task_assignment_email.delay")
+    def test_feeding_task_update_reassign_queues_notification(self, mocked_delay):
+        self.assign_permissions(
+            self.manager,
+            "ShelterAdmin",
+            ["view_feedingtask", "change_feedingtask"],
+        )
+        caretaker_alt = Caretaker.objects.create(
+            name="Alt Care",
+            email="alt@example.com",
+            phone_number="3333333333",
+            specialization="behavior",
+        )
+        caretaker_alt.shelters.add(self.shelter)
+        task = FeedingTask.objects.create(
+            pet=self.pet_public,
+            caretaker=self.caretaker_ok,
+            requested_by=self.manager,
+            scheduled_for=timezone.now() + timedelta(hours=5),
+            status=Booking.Status.PENDING,
+            notes="initial",
+        )
+
+        self.client.login(username="manager", password="pass12345")
+        response = self.client.post(
+            reverse("feeding-task-edit", kwargs={"pk": task.pk}),
+            data={
+                "pet": self.pet_public.id,
+                "caretaker": caretaker_alt.id,
+                "scheduled_for": (timezone.now() + timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M"),
+                "status": Booking.Status.PENDING,
+                "notes": "reassigned",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        mocked_delay.assert_called_once_with(
+            task.pk,
+            self.manager.get_username(),
+            "reassigned",
+        )
 
 
 class BookingAPITests(BookingBaseDataMixin, APITestCase):

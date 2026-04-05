@@ -6,7 +6,9 @@
   <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Caretakers</h1>
     <div class="d-flex gap-2">
-      <a class="btn btn-secondary" href="/accounts/caretakers/new/">Add caretaker</a>
+        {% if perms.accounts.add_caretaker %}
+            <a class="btn btn-secondary" href="/accounts/caretakers/new/">Add caretaker</a>
+        {% endif %}
         {% if can_view_volunteers %}
             <a class="btn btn-outline-secondary" href="/accounts/volunteers/new/">Add volunteer</a>
             <a class="btn btn-outline-secondary" href="/accounts/volunteers/">View volunteers</a>

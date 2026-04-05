@@ -88,16 +88,22 @@
         <div class="d-flex flex-wrap gap-3 small mb-2">
           <a class="text-decoration-none text-muted" href="/">Home</a>
           <a class="text-decoration-none text-muted" href="/pets/">Pets</a>
-          <a class="text-decoration-none text-muted" href="/pets/new/">Add pet</a>
+            {% if perms.pets.add_pet %}
+                <a class="text-decoration-none text-muted" href="/pets/new/">Add pet</a>
+            {% endif %}
           <a class="text-decoration-none text-muted" href="/shelters/">Shelters</a>
-          <a class="text-decoration-none text-muted" href="/shelters/new/">Add shelter</a>
+            {% if perms.shelters.add_shelter %}
+                <a class="text-decoration-none text-muted" href="/shelters/new/">Add shelter</a>
+            {% endif %}
             <a class="text-decoration-none text-muted" href="/booking/">Bookings</a>
             <a class="text-decoration-none text-muted" href="/booking/new/">Create booking</a>
           <a class="text-decoration-none text-muted" href="/accounts/caretakers/">Caretakers</a>
             {% if can_view_volunteers %}
                 <a class="text-decoration-none text-muted" href="/accounts/volunteers/">Volunteers</a>
             {% endif %}
-          <a class="text-decoration-none text-muted" href="/accounts/caretakers/new/">Add caretaker</a>
+            {% if perms.accounts.add_caretaker %}
+                <a class="text-decoration-none text-muted" href="/accounts/caretakers/new/">Add caretaker</a>
+            {% endif %}
             {% if can_view_volunteers %}
                 <a class="text-decoration-none text-muted" href="/accounts/volunteers/new/">Add volunteer</a>
             {% endif %}

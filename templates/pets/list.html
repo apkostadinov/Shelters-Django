@@ -5,7 +5,9 @@
 {% block content %}
   <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Pets</h1>
-    <a class="btn btn-secondary" href="/pets/new/">Add pet</a>
+      {% if perms.pets.add_pet %}
+          <a class="btn btn-secondary" href="/pets/new/">Add pet</a>
+      {% endif %}
   </div>
 
   <form class="card card-body shadow-sm mb-4" method="get">

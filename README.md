@@ -11,6 +11,8 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - Users: signup, login/logout, profile detail/edit (custom `AUTH_USER_MODEL`)
 - Bookings: list, detail, create, edit, delete with owner/manager access rules
 - Feeding Tasks: manager flow (list/detail/create/edit/delete)
+- Asynchronous booking email notifications (Celery + Redis)
+- Asynchronous feeding-task assignment emails to caretakers on assign/reassign (from app forms and Django admin)
 - Groups/permissions command (`seed_groups`) for roles (`ShelterAdmin`, `CaretakerManager`)
 - DRF API endpoint for bookings (`/api/bookings/`)
 - Custom 404 page
@@ -22,6 +24,8 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - Django
 - Django REST Framework
 - PostgreSQL
+- Celery
+- Redis
 - Gunicorn
 - WhiteNoise
 - Bootstrap (via CDN)
@@ -71,6 +75,9 @@ SECRET_KEY=replace-me
 DEBUG=True
 ALLOWED_HOSTS=127.0.0.1,localhost
 DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:5432/shelterdatabase
+REDIS_URL=redis://127.0.0.1:6379/1
+CELERY_BROKER_URL=redis://127.0.0.1:6379/1
+CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/1
 ADMIN_NAME=admin
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=change-me
@@ -113,6 +120,12 @@ python manage.py runserver
 
 App runs at `http://127.0.0.1:8000/`.
 
+### 6.1 Start Celery worker (required for async tasks)
+
+```bash
+celery -A PetShelterDjango worker --loglevel=info
+```
+
 ## Azure Deployment (App Service)
 
 Use this startup command in Azure App Service:
@@ -126,6 +139,12 @@ The script:
 - applies migrations
 - runs `collectstatic --noinput`
 - starts Gunicorn (`PetShelterDjango.wsgi`)
+
+For async tasks in Azure, run a second worker process with:
+
+```bash
+bash startup-worker.sh
+```
 
 ## Project Setup Notes
 
@@ -175,6 +194,28 @@ The script:
 ```bash
 python manage.py seed_demo --reset
 ```
+
+## Data Backfill (Optional)
+
+If you already have caretaker/volunteer records that are not linked to login users, run:
+
+```bash
+python manage.py link_accounts_to_users
+```
+
+To also create missing `users.User` records for unmatched account emails:
+
+```bash
+python manage.py link_accounts_to_users --create-missing-users
+```
+
+What it does:
+
+- links `Caretaker.user` and `Volunteer.user` by matching email
+- for linked caretakers, syncs `user.staffed_shelters` and adds `CaretakerManager` group
+- safely skips records with no matching user email (unless `--create-missing-users` is used)
+
+This command is idempotent and intended as a one-off repair/backfill step.
 
 ## Notes
 
