@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from accounts.models import Volunteer
+from users.forms import UserProfileForm, UserRegistrationForm
 from users.models import User
 
 
@@ -26,3 +27,10 @@ class UserModelTests(TestCase):
         self.assertEqual(volunteer.email, "newvolunteer@example.com")
         self.assertEqual(volunteer.name, "New Volunteer")
         self.assertEqual(volunteer.experience_level, "beginner")
+
+    def test_user_forms_do_not_expose_avatar_upload(self):
+        registration_form = UserRegistrationForm()
+        profile_form = UserProfileForm()
+
+        self.assertNotIn("avatar", registration_form.fields)
+        self.assertNotIn("avatar", profile_form.fields)

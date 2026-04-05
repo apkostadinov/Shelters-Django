@@ -14,7 +14,6 @@ class UserRegistrationForm(UserCreationForm):
             "last_name",
             "phone_number",
             "city",
-            "avatar",
         )
         labels = {
             "username": "Username",
@@ -23,14 +22,12 @@ class UserRegistrationForm(UserCreationForm):
             "last_name": "Last name",
             "phone_number": "Phone number",
             "city": "City",
-            "avatar": "Profile photo",
         }
         help_texts = {
             "username": "Pick a unique username.",
             "email": "We use this for login and notifications.",
             "phone_number": "Optional. Format: +359 followed by 9 digits.",
             "city": "Optional home city.",
-            "avatar": "Optional. JPG or PNG recommended.",
         }
         widgets = {
             "phone_number": forms.TextInput(attrs={"placeholder": "+359888123456"}),
@@ -56,7 +53,6 @@ class UserProfileForm(forms.ModelForm):
             "email",
             "phone_number",
             "city",
-            "avatar",
             "username",
         )
         labels = {
@@ -65,7 +61,6 @@ class UserProfileForm(forms.ModelForm):
             "email": "Email address",
             "phone_number": "Phone number",
             "city": "City",
-            "avatar": "Profile photo",
             "username": "Username",
         }
         help_texts = {
