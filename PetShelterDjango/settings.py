@@ -111,11 +111,33 @@ WSGI_APPLICATION = 'PetShelterDjango.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": env.db("DATABASE_URL", default=""),
-}
-if not DATABASES["default"]:
-    raise ImproperlyConfigured("DATABASE_URL is not set.")
+database_url = env("DATABASE_URL", default="").strip()
+if database_url:
+    DATABASES = {
+        "default": env.db("DATABASE_URL"),
+    }
+else:
+    db_name = env("DBNAME", default="").strip()
+    db_host = env("DBHOST", default="").strip()
+    db_user = env("DBUSER", default="").strip()
+    db_pass = env("DBPASS", default="").strip()
+    db_port = env("DBPORT", default="5432").strip()
+
+    if not all([db_name, db_host, db_user, db_pass]):
+        raise ImproperlyConfigured(
+            "Database is not configured. Set DATABASE_URL or DBNAME/DBHOST/DBUSER/DBPASS."
+        )
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": db_name,
+            "HOST": db_host,
+            "USER": db_user,
+            "PASSWORD": db_pass,
+            "PORT": db_port,
+        }
+    }
 
 
 # Password validation
