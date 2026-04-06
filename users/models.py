@@ -24,7 +24,7 @@ class User(AbstractUser):
     def avatar_url(self):
         if self.avatar and hasattr(self.avatar, "url"):
             return self.avatar.url
-        return f"{settings.MEDIA_URL}defaults/users.png"
+        return f"{settings.MEDIA_URL}{settings.DEFAULT_PROFILE_IMAGE_PATH}"
 
     def __str__(self):
         return self.get_username()

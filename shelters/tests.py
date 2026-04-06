@@ -108,6 +108,21 @@ class ShelterViewsTests(TestCase):
         self.assertEqual(dashboard.summary, "Updated summary")
         self.assertEqual(dashboard.priorities, "Updated priorities")
 
+    def test_dashboard_delete_requires_shelter_manager_flag(self):
+        ShelterDashboard.objects.filter(shelter=self.shelter).update(summary="x", priorities="y")
+        self.client.force_login(self.staff_user)
+        response = self.client.post(reverse("shelter-dashboard-delete", kwargs={"pk": self.shelter.pk}))
+        self.assertEqual(response.status_code, 403)
+
+    def test_dashboard_delete_for_manager(self):
+        ShelterDashboard.objects.filter(shelter=self.shelter).update(summary="x", priorities="y")
+        self.client.force_login(self.manager_user)
+
+        response = self.client.post(reverse("shelter-dashboard-delete", kwargs={"pk": self.shelter.pk}))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ShelterDashboard.objects.filter(shelter=self.shelter).exists())
+
     def test_assign_caretakers_requires_change_shelter_permission(self):
         self.client.force_login(self.outsider_user)
         response = self.client.get(reverse("shelter-assign-caretakers", kwargs={"pk": self.shelter.pk}))

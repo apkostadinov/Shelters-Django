@@ -41,4 +41,5 @@ urlpatterns = [
     ),
     path("me/", views.ProfileDetailView.as_view(), name="profile-detail"),
     path("me/edit/", views.ProfileUpdateView.as_view(), name="profile-edit"),
+    path("me/delete/", views.ProfileDeleteView.as_view(), name="profile-delete"),
 ]

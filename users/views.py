@@ -1,7 +1,9 @@
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 
 from accounts.models import Volunteer
 from .forms import UserProfileForm, UserRegistrationForm
@@ -59,3 +61,18 @@ class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         return self.request.user.is_authenticated
+
+
+class ProfileDeleteView(LoginRequiredMixin, DeleteView):
+    model = User
+    template_name = "users/profile_confirm_delete.html"
+    success_url = reverse_lazy("homepage")
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        user = self.get_object()
+        logout(self.request)
+        user.delete()
+        return HttpResponseRedirect(self.get_success_url())

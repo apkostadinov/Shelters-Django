@@ -9,7 +9,11 @@
             <div class="text-muted small">Internal shelter updates</div>
         </div>
         {% if request.user.is_shelter_manager %}
-            <a class="btn btn-secondary" href="{% url 'shelter-dashboard-edit' shelter.id %}">Edit dashboard</a>
+            <div class="d-flex gap-2">
+                <a class="btn btn-secondary" href="{% url 'shelter-dashboard-edit' shelter.id %}">Edit dashboard</a>
+                <a class="btn btn-outline-danger" href="{% url 'shelter-dashboard-delete' shelter.id %}">Delete
+                    dashboard</a>
+            </div>
         {% endif %}
     </div>
 

@@ -225,3 +225,18 @@ class ShelterDashboardUpdateView(ShelterDashboardAccessMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy("shelter-dashboard", kwargs={"pk": self.shelter.pk})
+
+
+class ShelterDashboardDeleteView(ShelterDashboardAccessMixin, DeleteView):
+    model = ShelterDashboard
+    template_name = "shelters/dashboard_confirm_delete.html"
+    context_object_name = "dashboard"
+
+    def test_func(self):
+        return super().test_func() and getattr(self.request.user, "is_shelter_manager", False)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(ShelterDashboard, shelter=self.shelter)
+
+    def get_success_url(self):
+        return reverse_lazy("shelter-detail", kwargs={"pk": self.shelter.pk})

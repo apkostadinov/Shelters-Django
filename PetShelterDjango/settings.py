@@ -189,6 +189,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Media (served from static/media)
 MEDIA_URL = "/static/media/"
 MEDIA_ROOT = BASE_DIR / "static" / "media"
+DEFAULT_PROFILE_IMAGE_PATH = env("DEFAULT_PROFILE_IMAGE_PATH", default="defaults/accounts.png")
 
 STORAGES = {
     "default": {

@@ -55,3 +55,16 @@ class UserModelTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("email", form.errors)
         self.assertIn("Too many reset requests", form.errors["email"][0])
+
+    def test_profile_delete_deletes_current_user_and_redirects(self):
+        user = User.objects.create_user(
+            username="deleteme",
+            email="deleteme@example.com",
+            password="StrongPass123!",
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(reverse("profile-delete"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(User.objects.filter(pk=user.pk).exists())

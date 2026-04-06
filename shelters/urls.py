@@ -24,4 +24,9 @@ urlpatterns = [
         views.ShelterDashboardUpdateView.as_view(),
         name="shelter-dashboard-edit",
     ),
+    path(
+        "<int:pk>/dashboard/delete/",
+        views.ShelterDashboardDeleteView.as_view(),
+        name="shelter-dashboard-delete",
+    ),
 ]
