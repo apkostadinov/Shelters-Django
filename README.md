@@ -32,6 +32,11 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - WhiteNoise
 - Bootstrap (via CDN)
 
+## Deployment
+
+-Project is deployed on the following link:
+petshelterapp-bbeuamavh3a6gefg.spaincentral-01.azurewebsites.net
+
 ## Project Structure
 
 - `accounts/` — caretakers and volunteers
