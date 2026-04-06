@@ -1,5 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.conf import settings
+from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
+from django.core.cache import cache
 
 from .models import User
 
@@ -75,3 +77,40 @@ class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["username"].disabled = True
+
+
+class ThrottledPasswordResetForm(PasswordResetForm):
+    error_messages = {
+        "too_many_attempts": "Too many reset requests. Please try again later.",
+    }
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "").strip().lower()
+        if not User.objects.filter(email__iexact=email).exists():
+            return email
+
+        limit = getattr(settings, "PASSWORD_RESET_EMAIL_LIMIT", 3)
+        window_seconds = getattr(settings, "PASSWORD_RESET_EMAIL_WINDOW_SECONDS", 900)
+        cache_key = f"password_reset_attempts:{email}"
+        attempts = cache.get(cache_key, 0)
+        if attempts >= limit:
+            raise forms.ValidationError(
+                self.error_messages["too_many_attempts"],
+                code="too_many_attempts",
+            )
+        return email
+
+    def save(self, *args, **kwargs):
+        email = self.cleaned_data["email"].strip().lower()
+        result = super().save(*args, **kwargs)
+
+        if User.objects.filter(email__iexact=email).exists():
+            limit = getattr(settings, "PASSWORD_RESET_EMAIL_LIMIT", 3)
+            window_seconds = getattr(settings, "PASSWORD_RESET_EMAIL_WINDOW_SECONDS", 900)
+            cache_key = f"password_reset_attempts:{email}"
+            attempts = cache.get(cache_key, 0) + 1
+            cache.set(cache_key, attempts, timeout=window_seconds)
+            if attempts > limit:
+                cache.set(cache_key, limit, timeout=window_seconds)
+
+        return result
