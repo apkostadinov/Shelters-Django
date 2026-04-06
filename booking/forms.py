@@ -2,8 +2,26 @@ from django import forms
 
 from accounts.models import Caretaker
 from pets.models import Pet
+from shelters.models import Shelter
 from .models import Booking, FeedingTask
 from .permissions import can_manage_booking, can_manage_feeding_tasks
+
+
+class BookingShelterSelectForm(forms.Form):
+    shelter = forms.ModelChoiceField(
+        queryset=Shelter.objects.none(),
+        label="Shelter",
+        help_text="Choose a shelter first. You will then select a pet from that shelter.",
+        error_messages={"required": "Please select a shelter."},
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        shelters = Shelter.objects.filter(active=True)
+        if user and not can_manage_booking(user):
+            shelters = shelters.filter(pet__active=True, pet__available_for_volunteers=True).distinct()
+        self.fields["shelter"].queryset = shelters.order_by("name")
 
 
 class BookingCreateForm(forms.ModelForm):
@@ -23,9 +41,12 @@ class BookingCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
+        self.shelter_id = kwargs.pop("shelter_id", None)
         super().__init__(*args, **kwargs)
         user_can_manage = can_manage_booking(self.user)
         pets_queryset = Pet.objects.filter(active=True, shelter__active=True)
+        if self.shelter_id:
+            pets_queryset = pets_queryset.filter(shelter_id=self.shelter_id)
         if not user_can_manage:
             pets_queryset = pets_queryset.filter(available_for_volunteers=True)
             self.fields["status"].widget = forms.HiddenInput()

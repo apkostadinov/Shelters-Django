@@ -143,7 +143,7 @@ class BookingCBVAccessTests(BookingBaseDataMixin, TestCase):
     def test_owner_can_create_booking(self):
         self.client.login(username="owner", password="pass12345")
         response = self.client.post(
-            reverse("booking-create"),
+            reverse("booking-create-form", kwargs={"shelter_id": self.shelter.id}),
             data={
                 "pet": self.pet_public.id,
                 "scheduled_for": (timezone.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M"),
@@ -158,7 +158,7 @@ class BookingCBVAccessTests(BookingBaseDataMixin, TestCase):
     def test_owner_cannot_create_booking_for_private_pet(self):
         self.client.login(username="owner", password="pass12345")
         response = self.client.post(
-            reverse("booking-create"),
+            reverse("booking-create-form", kwargs={"shelter_id": self.shelter.id}),
             data={
                 "pet": self.pet_private.id,
                 "scheduled_for": (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M"),
@@ -167,6 +167,36 @@ class BookingCBVAccessTests(BookingBaseDataMixin, TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(Booking.objects.filter(requested_by=self.owner, notes="blocked").exists())
+
+    def test_booking_create_step_one_select_shelter_redirects_to_filtered_form(self):
+        self.client.login(username="owner", password="pass12345")
+        response = self.client.post(
+            reverse("booking-create"),
+            data={"shelter": self.shelter.id},
+        )
+        self.assertRedirects(
+            response,
+            reverse("booking-create-form", kwargs={"shelter_id": self.shelter.id}),
+            fetch_redirect_response=False,
+        )
+
+    def test_booking_create_form_shows_only_pets_from_selected_shelter(self):
+        pet_other_shelter = Pet.objects.create(
+            name="OtherShelterPet",
+            species=Pet.AnimalSpecies.DOG,
+            age=2,
+            description="Other shelter pet",
+            available_for_volunteers=True,
+            shelter=self.other_shelter,
+        )
+
+        self.client.login(username="owner", password="pass12345")
+        response = self.client.get(reverse("booking-create-form", kwargs={"shelter_id": self.shelter.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        pet_queryset = response.context["form"].fields["pet"].queryset
+        self.assertIn(self.pet_public, pet_queryset)
+        self.assertNotIn(pet_other_shelter, pet_queryset)
 
     def test_owner_can_update_pending_booking(self):
         self.client.login(username="owner", password="pass12345")

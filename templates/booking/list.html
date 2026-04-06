@@ -21,6 +21,7 @@
                         <thead>
                         <tr>
                             <th scope="col">Pet</th>
+                            <th scope="col">Shelter</th>
                             <th scope="col">Scheduled for</th>
                             <th scope="col">Status</th>
                             <th scope="col" class="text-end">Actions</th>
@@ -30,6 +31,7 @@
                         {% for booking in bookings %}
                             <tr>
                                 <td>{{ booking.pet.name }}</td>
+                                <td>{{ booking.pet.shelter.name }}</td>
                                 <td>{{ booking.scheduled_for }}</td>
                                 <td>{{ booking.get_status_display }}</td>
                                 <td class="text-end">

@@ -8,13 +8,15 @@ A Django web application for managing shelters, pets, caretakers, and volunteers
 - Pets: list (randomized), filter by shelter, detail, create, edit, delete
 - Caretakers: list, detail, create, edit, delete, assign pets
 - Volunteers: list, detail, create, edit, delete
-- Users: signup, login/logout, profile detail/edit (custom `AUTH_USER_MODEL`)
+- Users: signup, login/logout, profile detail/edit/delete (custom `AUTH_USER_MODEL`)
 - Bookings: list, detail, create, edit, delete with owner/manager access rules
+- Booking creation flow: select shelter first, then create booking with pets only from that shelter
 - Feeding Tasks: manager flow (list/detail/create/edit/delete)
 - Asynchronous booking email notifications (Celery + Redis)
 - Asynchronous feeding-task assignment emails to caretakers on assign/reassign (from app forms and Django admin)
-- Groups/permissions command (`seed_groups`) for roles (`ShelterAdmin`, `CaretakerManager`)
+- Asynchronous caretaker-pet assignment email notifications
 - DRF API endpoint for bookings (`/api/bookings/`)
+- Password reset email throttling (rate limit per registered email)
 - Custom 404 page
 - Reusable templates and Bootstrap styling
 
@@ -73,8 +75,22 @@ Copy `.env.example` to `.env` and update values:
 ```
 SECRET_KEY=replace-me
 DEBUG=True
+LOG_LEVEL=INFO
 ALLOWED_HOSTS=127.0.0.1,localhost
+CSRF_TRUSTED_ORIGINS=http://127.0.0.1:8000,http://localhost:8000
+SECURE_SSL_REDIRECT=False
+SESSION_COOKIE_SECURE=False
+CSRF_COOKIE_SECURE=False
+SECURE_HSTS_SECONDS=0
+SECURE_HSTS_INCLUDE_SUBDOMAINS=False
+SECURE_HSTS_PRELOAD=False
 DATABASE_URL=postgres://myuser:mypassword@127.0.0.1:5432/shelterdatabase
+DBNAME=shelterdatabase
+DBHOST=127.0.0.1
+DBUSER=myuser
+DBPASS=mypassword
+DBPORT=5432
+DEFAULT_PROFILE_IMAGE_PATH=defaults/accounts.png
 REDIS_URL=redis://127.0.0.1:6379/1
 CELERY_BROKER_URL=redis://127.0.0.1:6379/1
 CELERY_RESULT_BACKEND=redis://127.0.0.1:6379/1
@@ -88,10 +104,17 @@ EMAIL_HOST_USER=your-email@example.com
 EMAIL_HOST_PASSWORD=your-app-password
 EMAIL_USE_TLS=True
 EMAIL_USE_SSL=False
+EMAIL_TIMEOUT=30
 DEFAULT_FROM_EMAIL=Pet Shelter <noreply@example.com>
+SERVER_EMAIL=server@example.com
+PASSWORD_RESET_EMAIL_LIMIT=3
+PASSWORD_RESET_EMAIL_WINDOW_SECONDS=900
 ```
 
-Ensure the database exists in PostgreSQL and the credentials match the `DATABASE_URL`.
+You can use either `DATABASE_URL` or `DBNAME/DBHOST/DBUSER/DBPASS` database configuration (if both are set,
+`DATABASE_URL` is used).
+
+Ensure the database exists in PostgreSQL and credentials are correct.
 For Gmail and similar providers, use an app-specific password (not your account password).
 
 ### 5. Run migrations
@@ -100,9 +123,11 @@ For Gmail and similar providers, use an app-specific password (not your account 
 python manage.py migrate
 ```
 
-Groups/permissions are seeded via data migration.
-Admin user is also created/updated by migration if `ADMIN_NAME` and `ADMIN_PASSWORD` are set.
-Default shelters, caretakers, and volunteers are seeded via data migration.
+Migration seeding includes:
+
+- groups and permissions (`ShelterAdmin`, `CaretakerManager`)
+- admin user (if `ADMIN_NAME` and `ADMIN_PASSWORD` are set)
+- default shelters, caretakers, volunteers, and pets
 
 ### 6. Start the server
 
@@ -118,6 +143,8 @@ App runs at `http://127.0.0.1:8000/`.
 celery -A PetShelterDjango worker --loglevel=info
 ```
 
+Application and Celery logs are emitted in structured JSON format to stdout.
+
 ## Azure Deployment (App Service)
 
 Use this startup command in Azure App Service:
@@ -130,7 +157,7 @@ The script:
 
 - applies migrations
 - runs `collectstatic --noinput`
-- seeds groups/admin via migration
+- executes data seeding via migrations
 - starts Gunicorn (`PetShelterDjango.wsgi`)
 
 For async tasks in Azure, run a second worker process with:
@@ -139,12 +166,27 @@ For async tasks in Azure, run a second worker process with:
 bash startup-worker.sh
 ```
 
+### Azure required app settings (production)
+
+- `DEBUG=False`
+- strong `SECRET_KEY`
+- `ALLOWED_HOSTS=<your-app>.azurewebsites.net`
+- `CSRF_TRUSTED_ORIGINS=https://<your-app>.azurewebsites.net`
+- `SECURE_SSL_REDIRECT=True`
+- `SESSION_COOKIE_SECURE=True`
+- `CSRF_COOKIE_SECURE=True`
+- `SECURE_HSTS_SECONDS=31536000`
+- `SECURE_HSTS_INCLUDE_SUBDOMAINS=True`
+- `SECURE_HSTS_PRELOAD=True`
+- database settings (`DATABASE_URL` or `DB*`)
+- redis/celery settings
+- smtp settings
+
 ## Project Setup Notes
 
 - Required tools: Python 3.10+ and PostgreSQL 13+.
 - Ensure PostgreSQL is running locally before migrations.
-- If you use a different host/port or credentials, update `PetShelterDjango/settings.py` accordingly.
-- For a clean start, delete any existing data and rerun migrations.
+- `runserver` with `DEBUG=False` still shows development-server warning; use Gunicorn for production.
 
 ## Pages (Non-Admin, Non-Form)
 
@@ -161,8 +203,10 @@ bash startup-worker.sh
 - Caretaker Detail (`/accounts/caretakers/<id>/`): Caretaker profile with assigned shelters and pets (newest first).
 - Volunteers List (`/accounts/volunteers/`): List of active volunteers.
 - Volunteer Detail (`/accounts/volunteers/<id>/`): Volunteer profile with experience level.
-- My Profile (`/users/me/`) and Edit Profile (`/users/me/edit/`)
-- Booking List (`/booking/`) and CRUD routes
+- My Profile (`/users/me/`), Edit Profile (`/users/me/edit/`), Delete Profile (`/users/me/delete/`)
+- Booking List (`/booking/`) and CRUD routes (with shelter shown in the list)
+- Booking Create Step 1 (`/booking/new/`) -> select shelter
+- Booking Create Step 2 (`/booking/new/<shelter_id>/`) -> create booking with shelter-filtered pets
 - Feeding Task manager routes (`/booking/feeding-tasks/`)
 - 404 Page: Custom not-found page for invalid routes.
 
@@ -175,12 +219,12 @@ bash startup-worker.sh
 ## API
 
 - `GET /api/bookings/`: list bookings
-    - Regular users: own bookings only
-    - Users with `booking.view_booking` in manager group: all bookings
+  - Regular users: own bookings only
+  - Users with `booking.view_booking` in manager group: all bookings
 - `POST /api/bookings/`: create booking
-    - Requires authenticated user
-    - Non-manager users can only book pets with `available_for_volunteers=True`
-    - Non-manager users can only create `pending` status bookings
+  - Requires authenticated user
+  - Non-manager users can only book pets with `available_for_volunteers=True`
+  - Non-manager users can only create `pending` status bookings
 
 ## Seed Demo Data (Optional)
 
@@ -214,16 +258,17 @@ This command is idempotent and intended as a one-off repair/backfill step.
 
 - The custom 404 page is shown when `DEBUG = False`.
 - Images are optional. Default images are used when none are uploaded.
+- Default profile fallback image uses `DEFAULT_PROFILE_IMAGE_PATH` (default: `defaults/accounts.png`).
 - Custom `500.html` and `403.html` templates are included in `templates/`.
 
 ## Tests
 
-Automated tests are included, with focus on booking and permissions:
+Automated tests are included for:
 
-- FeedingTask model validation (`clean`/save behavior)
-- Booking owner access rules (detail/edit/delete)
-- Permission denial and manager permission behavior in CBVs
-- DRF API responses and booking creation rules
+- Booking and feeding-task permissions/flows
+- API behavior and business rules
+- User flows (signup, password-reset throttling, profile delete)
+- Shelter, pet, and form validation behavior
 
 ## License
 

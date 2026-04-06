@@ -1,10 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
 
 from .forms import (
     BookingCreateForm,
     BookingEditForm,
+    BookingShelterSelectForm,
     FeedingTaskCreateForm,
     FeedingTaskEditForm,
 )
@@ -18,11 +21,15 @@ from .permissions import (
     can_view_feeding_tasks,
 )
 from .tasks import send_booking_notification_email, send_feeding_task_assignment_email
+from shelters.models import Shelter
 
 
 class BookingAccessMixin(LoginRequiredMixin):
     def get_queryset(self):
-        queryset = Booking.objects.select_related("pet", "requested_by").order_by("-scheduled_for", "-id")
+        queryset = Booking.objects.select_related("pet", "pet__shelter", "requested_by").order_by(
+            "-scheduled_for",
+            "-id",
+        )
         if can_view_all_bookings(self.request.user):
             return queryset
         return queryset.filter(requested_by=self.request.user)
@@ -46,6 +53,22 @@ class BookingDetailView(BookingAccessMixin, DetailView):
     context_object_name = "booking"
 
 
+class BookingShelterSelectView(LoginRequiredMixin, FormView):
+    form_class = BookingShelterSelectForm
+    template_name = "booking/select_shelter.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        shelter = form.cleaned_data["shelter"]
+        return HttpResponseRedirect(
+            reverse_lazy("booking-create-form", kwargs={"shelter_id": shelter.pk})
+        )
+
+
 class BookingCreateView(BookingAccessMixin, CreateView):
     model = Booking
     form_class = BookingCreateForm
@@ -60,10 +83,19 @@ class BookingCreateView(BookingAccessMixin, CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
+        kwargs["shelter_id"] = self.kwargs.get("shelter_id")
         return kwargs
 
     def get_success_url(self):
         return reverse_lazy("booking-detail", kwargs={"pk": self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["selected_shelter"] = get_object_or_404(
+            Shelter.objects.filter(active=True),
+            pk=self.kwargs.get("shelter_id"),
+        )
+        return context
 
 
 class BookingUpdateView(BookingAccessMixin, UserPassesTestMixin, UpdateView):

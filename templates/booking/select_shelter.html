@@ -1,6 +1,6 @@
 {% extends "common/base.html" %}
 
-{% block title %}Create Booking{% endblock %}
+{% block title %}Create Booking · Select Shelter{% endblock %}
 
 {% block content %}
     <div class="row justify-content-center">
@@ -8,15 +8,12 @@
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h1 class="h4 mb-3">Create booking</h1>
-                    <p class="text-muted mb-3">
-                        Step 2 of 2: Select a pet from <strong>{{ selected_shelter.name }}</strong>.
-                    </p>
+                    <p class="text-muted mb-3">Step 1 of 2: Select a shelter.</p>
                     <form method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-secondary">Save</button>
-                            <a href="{% url 'booking-create' %}" class="btn btn-outline-secondary">Back</a>
+                            <button type="submit" class="btn btn-secondary">Continue</button>
                             <a href="{% url 'booking-list' %}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
