@@ -11,6 +11,7 @@ venv/
 
 # Python
 __pycache__/
+PetShelterDjango/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -32,3 +33,7 @@ staticfiles/
 # PyCharm
 .idea/
 .idea/*
+
+#GitHub
+.github/
+.github/*
